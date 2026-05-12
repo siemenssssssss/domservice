@@ -12,10 +12,10 @@ def register(request):
             
             Profile.objects.create(
                 user=user,
+                house=form.cleaned_data.get('house'),
                 apartment_number=form.cleaned_data.get('apartment_number'),
                 phone=form.cleaned_data.get('phone'),
-                personal_account=f"ЛС-{user.id:06d}",
-                house=form.cleaned_data.get('house')
+                personal_account=f"ЛС-{user.id:06d}"
             )
             login(request, user)
             messages.success(request, f'Добро пожаловать, {user.first_name}!')
