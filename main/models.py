@@ -73,30 +73,25 @@ class Request(models.Model):
         ('new', '🟡 Новая'),
         ('in_progress', '🔵 В работе'),
         ('completed', '✅ Выполнена'),
-        ('rejected', '❌ Отклонена'),
     ]
-    
     CATEGORY_CHOICES = [
-        ('plumbing', '🚰 Сантехника'),
-        ('electricity', '⚡ Электричество'),
-        ('heating', '🔥 Отопление'),
-        ('garbage', '🗑️ Мусор'),
-        ('cleaning', '🧹 Уборка'),
-        ('intercom', '📞 Домофон'),
-        ('other', '📝 Другое'),
+        ('plumbing', 'Сантехника'),
+        ('electrical', 'Электрика'),
+        ('heating', 'Отопление'),
+        ('other', 'Другое'),
     ]
     
-    user = models.ForeignKey(User, on_delete=models.CASCADE, verbose_name='Заявитель')
-    category = models.CharField(max_length=20, choices=CATEGORY_CHOICES, default='other', verbose_name='Категория')
-    title = models.CharField(max_length=100, verbose_name='Краткое описание')
+    user = models.ForeignKey(User, on_delete=models.CASCADE, verbose_name='Жилец')
+    category = models.CharField(max_length=20, choices=CATEGORY_CHOICES, verbose_name='Категория')
+    title = models.CharField(max_length=200, verbose_name='Заголовок')
     description = models.TextField(verbose_name='Описание')
     photo = models.ImageField(upload_to='requests/', blank=True, null=True, verbose_name='Фото')
     status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='new', verbose_name='Статус')
+    admin_comment = models.TextField(blank=True, verbose_name='Комментарий администратора')
     created_at = models.DateTimeField(auto_now_add=True, verbose_name='Дата создания')
-    admin_comment = models.TextField(blank=True, verbose_name='Комментарий')
     
     def __str__(self):
-        return f"{self.title} - {self.user.username}"
+        return self.title
     
     class Meta:
         verbose_name = 'Заявка'
@@ -105,67 +100,37 @@ class Request(models.Model):
 
 
 class Payment(models.Model):
-    """Платежи и начисления"""
+    """Платежи"""
     user = models.ForeignKey(User, on_delete=models.CASCADE, verbose_name='Жилец')
     month = models.CharField(max_length=7, verbose_name='Месяц')
     amount = models.DecimalField(max_digits=10, decimal_places=2, verbose_name='Сумма')
     is_paid = models.BooleanField(default=False, verbose_name='Оплачено')
-    paid_at = models.DateTimeField(blank=True, null=True, verbose_name='Дата оплаты')
+    paid_at = models.DateTimeField(null=True, blank=True, verbose_name='Дата оплаты')
     
     def __str__(self):
-        return f"{self.user.username} - {self.month}: {self.amount} руб"
+        return f"{self.user.username} - {self.month}: {self.amount}"
     
     class Meta:
         verbose_name = 'Платеж'
         verbose_name_plural = 'Платежи'
 
 
-class HouseInfo(models.Model):
-    """Информация о доме"""
-    address = models.CharField(max_length=200, verbose_name='Адрес')
-    year_built = models.IntegerField(verbose_name='Год постройки')
-    floors = models.IntegerField(verbose_name='Количество этажей')
-    entrances = models.IntegerField(verbose_name='Количество подъездов')
-    apartments = models.IntegerField(verbose_name='Количество квартир')
-    total_area = models.FloatField(verbose_name='Общая площадь (м²)')
-    management_company = models.CharField(max_length=200, verbose_name='Управляющая компания')
-    chief_engineer = models.CharField(max_length=100, verbose_name='Главный инженер', blank=True)
-    phone = models.CharField(max_length=20, verbose_name='Телефон диспетчерской')
-    description = models.TextField(verbose_name='Описание', blank=True)
-    
-    class Meta:
-        verbose_name = 'Информация о доме'
-        verbose_name_plural = 'Информация о доме'
+class Document(models.Model):
+    """Документы"""
+    title = models.CharField(max_length=200, verbose_name='Название')
+    document_type = models.CharField(max_length=50, verbose_name='Тип')
+    file = models.FileField(upload_to='documents/', verbose_name='Файл')
+    description = models.TextField(blank=True, verbose_name='Описание')
+    is_public = models.BooleanField(default=True, verbose_name='Публичный')
+    date_posted = models.DateTimeField(auto_now_add=True, verbose_name='Дата публикации')
     
     def __str__(self):
-        return self.address
-
-
-class Document(models.Model):
-    """Документы (протоколы, квитанции, акты)"""
-    DOCUMENT_TYPES = [
-        ('protocol', 'Протокол собрания'),
-        ('act', 'Акт выполненных работ'),
-        ('receipt', 'Квитанция'),
-        ('tariff', 'Тарифы'),
-        ('regulation', 'Регламент'),
-        ('other', 'Другое'),
-    ]
-    
-    title = models.CharField(max_length=200, verbose_name='Название')
-    document_type = models.CharField(max_length=20, choices=DOCUMENT_TYPES, verbose_name='Тип документа')
-    file = models.FileField(upload_to='documents/', verbose_name='Файл')
-    date_posted = models.DateTimeField(auto_now_add=True, verbose_name='Дата публикации')
-    description = models.TextField(blank=True, verbose_name='Описание')
-    is_public = models.BooleanField(default=True, verbose_name='Доступен всем')
+        return self.title
     
     class Meta:
         verbose_name = 'Документ'
         verbose_name_plural = 'Документы'
         ordering = ['-date_posted']
-    
-    def __str__(self):
-        return self.title
 
 
 class Notification(models.Model):
@@ -279,3 +244,26 @@ class EmployeeReview(models.Model):
     
     def __str__(self):
         return f"{self.employee.name} - {self.rating}★"
+
+
+# ========== ИНФОРМАЦИЯ О ДОМЕ ==========
+
+class HouseInfo(models.Model):
+    """Информация о доме (заполняется автоматически или админом)"""
+    address = models.CharField(max_length=300, unique=True, verbose_name='Адрес дома')
+    building_year = models.IntegerField(null=True, blank=True, verbose_name='Год постройки')
+    floors = models.IntegerField(null=True, blank=True, verbose_name='Количество этажей')
+    entrances = models.IntegerField(null=True, blank=True, verbose_name='Количество подъездов')
+    flat_count = models.IntegerField(null=True, blank=True, verbose_name='Количество квартир')
+    total_area = models.FloatField(null=True, blank=True, verbose_name='Общая площадь (м²)')
+    managing_company = models.CharField(max_length=200, blank=True, verbose_name='Управляющая компания')
+    chief_engineer = models.CharField(max_length=200, blank=True, verbose_name='Главный инженер')
+    emergency_phone = models.CharField(max_length=20, blank=True, verbose_name='Телефон диспетчерской')
+    description = models.TextField(blank=True, verbose_name='Описание')
+    
+    def __str__(self):
+        return self.address
+    
+    class Meta:
+        verbose_name = 'Информация о доме'
+        verbose_name_plural = 'Информация о домах'
