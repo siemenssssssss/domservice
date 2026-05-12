@@ -72,199 +72,65 @@ def statistics(request):
     # Статистика по категориям заявок
     categories = Request.objects.values('category').annotate(count=Count('id'))
     
-    if total_requests == 0:
-        categories_labels = ['Сантехника', 'Электричество', 'Отопление', 'Мусор', 'Уборка', 'Домофон']
-        categories_data = [12, 8, 5, 3, 7, 4]
-        total_requests = 39
-        completed_requests = 28
-    elif categories:
-        categories_labels = [dict(Request.CATEGORY_CHOICES).get(c['category'], c['category']) for c in categories]
-        categories_data = [c['count'] for c in categories]
-    else:
-        categories_labels = ['Другие']
-        categories_data = [total_requests]
-    
-    # ========== СТАТИСТИКА ПО ПЛАТЕЖАМ ==========
-    payments_by_month = Payment.objects.filter(is_paid=True).values('month').annotate(
-        total=Sum('amount')
-    )
-    
-    payments_dict = {}
-    for item in payments_by_month:
-        month_str = item['month']
-        if month_str:
-            try:
-                month, year = month_str.split('.')
-                sort_key = (int(year), int(month))
-                payments_dict[sort_key] = {
-                    'label': month_str,
-                    'amount': float(item['total'])
-                }
-            except:
-                pass
-    
-    sorted_keys = sorted(payments_dict.keys())
-    
-    months_labels = []
-    payments_data = []
-    
-    for key in sorted_keys:
-        months_labels.append(payments_dict[key]['label'])
-        payments_data.append(payments_dict[key]['amount'])
-    
-    avg_response_time = 48
-    
     context = {
         'total_requests': total_requests,
         'completed_requests': completed_requests,
-        'avg_response_time': avg_response_time,
-        'categories_labels': categories_labels,
-        'categories_data': categories_data,
-        'months_labels': months_labels,
-        'payments_data': payments_data,
+        'categories': categories,
     }
     return render(request, 'main/statistics.html', context)
-
-# ========== СТРАНИЦА ОТЗЫВОВ ==========
-
-def reviews_list(request):
-    """Страница со всеми отзывами"""
-    # Берём все реальные отзывы
-    real_reviews = RequestReview.objects.select_related('request', 'request__user').all().order_by('-created_at')
-    
-    # Демо-отзывы для наполнения (20 штук)
-    demo_reviews = [
-        {'name': 'Иван Петров', 'rating': 5, 'comment': 'Отличная работа! Сантехник приехал быстро, всё исправил за 15 минут. Спасибо!', 'date': '15.03.2026'},
-        {'name': 'Мария Иванова', 'rating': 4, 'comment': 'Хорошо, но пришлось ждать мастера 3 часа. В остальном всё качественно.', 'date': '12.03.2026'},
-        {'name': 'Сергей Козлов', 'rating': 5, 'comment': 'Профессионально, быстро, вежливо. Рекомендую!', 'date': '10.03.2026'},
-        {'name': 'Елена Смирнова', 'rating': 5, 'comment': 'Спасибо за оперативность! Лифт починили на следующий день после заявки.', 'date': '05.03.2026'},
-        {'name': 'Андрей Морозов', 'rating': 4, 'comment': 'Хороший сервис, но цены немного завышены.', 'date': '01.03.2026'},
-        {'name': 'Ольга Новикова', 'rating': 5, 'comment': 'Всё отлично! Буду обращаться ещё.', 'date': '25.02.2026'},
-        {'name': 'Дмитрий Волков', 'rating': 3, 'comment': 'Нормально, но могли бы и побыстрее приехать.', 'date': '20.02.2026'},
-        {'name': 'Татьяна Кузнецова', 'rating': 5, 'comment': 'Очень довольна работой мастера! Спасибо УК "ДомСервис"!', 'date': '15.02.2026'},
-        {'name': 'Павел Соколов', 'rating': 4, 'comment': 'Хорошо, но не хватило подробного объяснения проблемы.', 'date': '10.02.2026'},
-        {'name': 'Анна Попова', 'rating': 5, 'comment': 'Лучшая УК в городе! Все заявки выполняются быстро.', 'date': '05.02.2026'},
-        {'name': 'Виктор Лебедев', 'rating': 4, 'comment': 'Хорошо, но в следующий раз хотелось бы побыстрее.', 'date': '01.02.2026'},
-        {'name': 'Наталья Егорова', 'rating': 5, 'comment': 'Спасибо большое! Проблему решили за один день.', 'date': '25.01.2026'},
-        {'name': 'Максим Титов', 'rating': 5, 'comment': 'Отличная работа! Мастер вежливый, всё объяснил.', 'date': '20.01.2026'},
-        {'name': 'Юлия Фёдорова', 'rating': 4, 'comment': 'Хорошо, но пришлось ждать.', 'date': '15.01.2026'},
-        {'name': 'Артём Захаров', 'rating': 5, 'comment': 'Всё супер! Спасибо!', 'date': '10.01.2026'},
-        {'name': 'Ксения Григорьева', 'rating': 5, 'comment': 'Отличный сервис, рекомендую всем соседям!', 'date': '05.01.2026'},
-        {'name': 'Игорь Михайлов', 'rating': 4, 'comment': 'Нормально, но можно и быстрее.', 'date': '01.01.2026'},
-        {'name': 'Вера Андреева', 'rating': 5, 'comment': 'Спасибо за чистоту и порядок в подъезде!', 'date': '25.12.2025'},
-        {'name': 'Николай Крылов', 'rating': 5, 'comment': 'Лучшая УК, смена была правильным решением!', 'date': '20.12.2025'},
-        {'name': 'Лариса Семёнова', 'rating': 4, 'comment': 'Хорошо, спасибо.', 'date': '15.12.2025'},
-    ]
-    
-    # Формируем список всех отзывов
-    all_reviews = []
-    
-    # Добавляем реальные отзывы
-    for review in real_reviews:
-        all_reviews.append({
-            'name': review.request.user.get_full_name() or review.request.user.username,
-            'rating': review.rating,
-            'comment': review.comment,
-            'date': review.created_at.strftime('%d.%m.%Y'),
-        })
-    
-    # Добавляем демо-отзывы
-    all_reviews.extend(demo_reviews)
-    
-    # Ограничиваем до 20 (или больше, если реальных много)
-    # Для статистики берём все, для отображения ограничим
-    display_reviews = all_reviews[:30]
-    
-    # Вычисляем средний рейтинг
-    if all_reviews:
-        total_rating = sum(r['rating'] for r in all_reviews)
-        avg_rating = total_rating / len(all_reviews)
-    else:
-        avg_rating = 0
-    
-    context = {
-        'reviews': display_reviews,
-        'reviews_count': len(all_reviews),
-        'avg_rating': avg_rating,
-    }
-    return render(request, 'main/reviews.html', context)
 
 # ========== ЛИЧНЫЙ КАБИНЕТ ==========
 
 @login_required
 def dashboard(request):
-    user = request.user
-    current_month = datetime.now().strftime('%m.%Y')
-    profile = get_object_or_404(Profile, user=user)
-    readings = MeterReading.objects.filter(user=user, month=current_month)
-    unpaid_payments = Payment.objects.filter(user=user, is_paid=False)
-    total_debt = unpaid_payments.aggregate(Sum('amount'))['amount__sum'] or 0
-    active_requests = Request.objects.filter(user=user).exclude(status='completed')[:5]
-    recent_news = News.objects.all()[:3]
-    
-    context = {
-        'profile': profile,
-        'readings': readings,
-        'unpaid_payments': unpaid_payments,
-        'total_debt': total_debt,
-        'active_requests': active_requests,
-        'recent_news': recent_news,
-        'current_month': current_month,
-    }
-    return render(request, 'main/dashboard.html', context)
+    profile = get_object_or_404(Profile, user=request.user)
+    return render(request, 'main/dashboard.html', {'profile': profile})
 
 @login_required
 def readings(request):
-    user = request.user
-    current_month = datetime.now().strftime('%m.%Y')
-    existing_readings = MeterReading.objects.filter(user=user, month=current_month)
-    
     if request.method == 'POST':
-        form = MeterReadingForm(request.POST, user=user)
+        form = MeterReadingForm(request.POST, user=request.user)
         if form.is_valid():
             reading = form.save(commit=False)
-            reading.user = user
-            reading.month = current_month
+            reading.user = request.user
+            reading.month = datetime.now().strftime('%m.%Y')
             reading.save()
             messages.success(request, 'Показания успешно переданы!')
             return redirect('readings')
     else:
-        form = MeterReadingForm(user=user)
+        form = MeterReadingForm(user=request.user)
     
-    readings_history = MeterReading.objects.filter(user=user).order_by('-date_submitted')[:20]
+    current_month = datetime.now().strftime('%m.%Y')
+    user_readings = MeterReading.objects.filter(
+        user=request.user, 
+        month=current_month
+    ).select_related('service')
     
     context = {
         'form': form,
-        'existing_readings': existing_readings,
-        'readings_history': readings_history,
-        'current_month': current_month,
+        'readings': user_readings,
     }
     return render(request, 'main/readings.html', context)
 
 @login_required
 def requests_list(request):
     user_requests = Request.objects.filter(user=request.user).order_by('-created_at')
-    
+    return render(request, 'main/requests.html', {'requests': user_requests})
+
+@login_required
+def create_request(request):
     if request.method == 'POST':
         form = RequestForm(request.POST, request.FILES)
         if form.is_valid():
             req = form.save(commit=False)
             req.user = request.user
             req.save()
-            
-            create_notification(
-                request.user,
-                f'📋 Ваша заявка "{req.title}" принята. Мы свяжемся с вами в ближайшее время.',
-                f'/requests/{req.id}/'
-            )
-            
-            messages.success(request, 'Ваша заявка принята!')
+            messages.success(request, 'Заявка успешно создана!')
             return redirect('requests')
     else:
         form = RequestForm()
     
-    context = {'form': form, 'requests': user_requests}
-    return render(request, 'main/requests.html', context)
+    return render(request, 'main/create_request.html', {'form': form})
 
 @login_required
 def request_detail(request, pk):
