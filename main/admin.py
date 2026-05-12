@@ -2,7 +2,8 @@ from django.contrib import admin
 from .models import (
     Profile, News, Service, MeterReading, 
     Request, Payment, HouseInfo, Document, 
-    Notification, RequestReview
+    Notification, RequestReview, ShutdownSchedule,
+    Employee, EmployeeReview
 )
 
 
@@ -64,13 +65,17 @@ class PaymentAdmin(admin.ModelAdmin):
 
 @admin.register(HouseInfo)
 class HouseInfoAdmin(admin.ModelAdmin):
-    list_display = ['address', 'year_built', 'floors', 'apartments', 'phone']
-    search_fields = ['address', 'management_company']
-    fields = [
-        'address', 'year_built', 'floors', 'entrances', 
-        'apartments', 'total_area', 'management_company', 
-        'chief_engineer', 'phone', 'description'
-    ]
+    list_display = ['address', 'building_year', 'floors', 'flat_count', 'emergency_phone']
+    list_filter = ['building_year', 'floors']
+    search_fields = ['address', 'managing_company']
+    fieldsets = (
+        ('Основная информация', {
+            'fields': ('address', 'building_year', 'floors', 'entrances', 'flat_count', 'total_area')
+        }),
+        ('Контактная информация', {
+            'fields': ('managing_company', 'chief_engineer', 'emergency_phone', 'description')
+        }),
+    )
 
 
 @admin.register(Document)
@@ -98,3 +103,29 @@ class RequestReviewAdmin(admin.ModelAdmin):
     search_fields = ['request__title', 'comment']
     readonly_fields = ['created_at']
     fields = ['request', 'rating', 'comment', 'created_at']
+
+
+@admin.register(ShutdownSchedule)
+class ShutdownScheduleAdmin(admin.ModelAdmin):
+    list_display = ['service_type', 'start_date', 'end_date', 'is_active']
+    list_filter = ['service_type', 'is_active']
+    search_fields = ['address', 'description']
+    date_hierarchy = 'start_date'
+    fields = ['service_type', 'start_date', 'end_date', 'address', 'description', 'is_active']
+
+
+@admin.register(Employee)
+class EmployeeAdmin(admin.ModelAdmin):
+    list_display = ['name', 'position', 'rating', 'is_active']
+    list_filter = ['position', 'is_active']
+    search_fields = ['name', 'position']
+    fields = ['user', 'name', 'position', 'photo', 'rating', 'is_active', 'description', 'experience']
+
+
+@admin.register(EmployeeReview)
+class EmployeeReviewAdmin(admin.ModelAdmin):
+    list_display = ['employee', 'user', 'rating', 'created_at']
+    list_filter = ['rating', 'created_at']
+    search_fields = ['employee__name', 'comment']
+    readonly_fields = ['created_at']
+    fields = ['employee', 'user', 'request', 'rating', 'comment', 'created_at']
