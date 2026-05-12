@@ -3,9 +3,9 @@ from pathlib import Path
 
 BASE_DIR = Path(__file__).resolve().parent.parent
 
-SECRET_KEY = os.environ.get('SECRET_KEY', 'django-insecure-eq%*zgbi*x29ou*v9u9t7*b!082r#&g4*)2)x1dti2%tkp36k3')
+SECRET_KEY = 'django-insecure-eq%*zgbi*x29ou*v9u9t7*b!082r#&g4*)2)x1dti2%tkp36k3'
 
-DEBUG = os.environ.get('DEBUG', 'True') == 'True'
+DEBUG = True
 
 ALLOWED_HOSTS = ['*']
 
@@ -31,7 +31,7 @@ MIDDLEWARE = [
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
 ]
 
-ROOT_URLCONF = 'ukproject.urls'
+ROOT_URLCONF = 'ukproject.ukproject.urls'  # ← ЭТУ СТРОКУ ИЗМЕНИЛ
 
 TEMPLATES = [
     {
@@ -82,5 +82,3 @@ LOGIN_REDIRECT_URL = 'home'
 LOGOUT_REDIRECT_URL = 'home'
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
-
-STATIC_ROOT = BASE_DIR / 'staticfiles'
