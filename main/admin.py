@@ -1,8 +1,7 @@
 from django.contrib import admin
 from .models import (
     Profile, News, Service, MeterReading, 
-    Request, Payment, HouseInfo, Document, 
-    Notification, RequestReview
+    Request, HouseInfo, Notification, RequestReview
 )
 
 
@@ -12,7 +11,7 @@ class ProfileAdmin(admin.ModelAdmin):
     list_filter = ['apartment_number']
     search_fields = ['user__username', 'user__first_name', 'user__last_name', 'apartment_number']
     readonly_fields = ['personal_account']
-    fields = ['user', 'apartment_number', 'phone', 'personal_account']
+    fields = ['user', 'apartment_number', 'phone', 'personal_account', 'house']
 
 
 @admin.register(News)
@@ -53,33 +52,32 @@ class RequestAdmin(admin.ModelAdmin):
     readonly_fields = ['created_at']
 
 
-@admin.register(Payment)
-class PaymentAdmin(admin.ModelAdmin):
-    list_display = ['user', 'month', 'amount', 'is_paid', 'paid_at']
-    list_filter = ['month', 'is_paid']
-    search_fields = ['user__username']
-    fields = ['user', 'month', 'amount', 'is_paid', 'paid_at']
-    readonly_fields = ['paid_at']
-
-
 @admin.register(HouseInfo)
 class HouseInfoAdmin(admin.ModelAdmin):
-    list_display = ['address', 'year_built', 'floors', 'apartments', 'phone']
-    search_fields = ['address', 'management_company']
-    fields = [
-        'address', 'year_built', 'floors', 'entrances', 
-        'apartments', 'total_area', 'management_company', 
-        'chief_engineer', 'phone', 'description'
-    ]
-
-
-@admin.register(Document)
-class DocumentAdmin(admin.ModelAdmin):
-    list_display = ['title', 'document_type', 'date_posted', 'is_public']
-    list_filter = ['document_type', 'is_public', 'date_posted']
-    search_fields = ['title', 'description']
-    date_hierarchy = 'date_posted'
-    fields = ['title', 'document_type', 'file', 'description', 'is_public']
+    list_display = ['address_full', 'building_year', 'floors', 'city']
+    search_fields = ['address_full', 'city', 'street']
+    list_filter = ['building_year', 'floors']
+    fieldsets = (
+        ('Адрес', {
+            'fields': ('address_full', 'address_source', 'postal_code', 'country', 'federal_district', 'timezone')
+        }),
+        ('Регион и город', {
+            'fields': ('region', 'region_type', 'area', 'city', 'city_district', 'settlement')
+        }),
+        ('Улица и дом', {
+            'fields': ('street', 'street_type', 'house', 'house_type', 'block', 'flat', 'flat_area')
+        }),
+        ('Характеристики дома', {
+            'fields': ('building_year', 'floors', 'flat_count', 'material', 'cadastral_number')
+        }),
+        ('Координаты', {
+            'fields': ('geo_lat', 'geo_lon', 'geo_quality')
+        }),
+        ('Данные вручную', {
+            'fields': ('managing_company', 'emergency_phone', 'entrances')
+        }),
+    )
+    readonly_fields = ['fias_id', 'house_fias_id', 'street_fias_id', 'qc', 'qc_geo', 'created_at', 'updated_at']
 
 
 @admin.register(Notification)
