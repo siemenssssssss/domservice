@@ -1,0 +1,123 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Главная - УК "ДомСервис"{% endblock %}
+
+{% block content %}
+<!-- Hero секция -->
+<div class="hero-section">
+    <div class="container text-center">
+        <h1 class="display-4 mb-4">Управляющая компания "ДомСервис"</h1>
+        <p class="lead mb-4">Ваш комфорт и безопасность — наша главная задача</p>
+        {% if not user.is_authenticated %}
+            <a href="{% url 'register' %}" class="btn btn-light btn-lg">
+                <i class="fas fa-user-plus"></i> Подключиться к системе
+            </a>
+        {% endif %}
+    </div>
+</div>
+
+<div class="container mt-5">
+    <!-- Преимущества -->
+    <div class="row text-center mb-5">
+        <div class="col-md-3 mb-3">
+            <div class="card p-4">
+                <i class="fas fa-hand-holding-usd fa-3x text-primary mb-3"></i>
+                <h5>Прозрачные тарифы</h5>
+                <p>Все платежи под контролем</p>
+            </div>
+        </div>
+        <div class="col-md-3 mb-3">
+            <div class="card p-4">
+                <i class="fas fa-clock fa-3x text-primary mb-3"></i>
+                <h5>24/7 Поддержка</h5>
+                <p>Диспетчерская служба</p>
+            </div>
+        </div>
+        <div class="col-md-3 mb-3">
+            <div class="card p-4">
+                <i class="fas fa-mobile-alt fa-3x text-primary mb-3"></i>
+                <h5>Онлайн-сервис</h5>
+                <p>Показания и оплата</p>
+            </div>
+        </div>
+        <div class="col-md-3 mb-3">
+            <div class="card p-4">
+                <i class="fas fa-chart-line fa-3x text-primary mb-3"></i>
+                <h5>Контроль качества</h5>
+                <p>Отслеживайте заявки</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Новости -->
+    <div class="row">
+        <div class="col-12">
+            <h2 class="text-center mb-4"><i class="fas fa-newspaper"></i> Новости и объявления</h2>
+        </div>
+        {% for item in news %}
+            <div class="col-md-4 mb-4">
+                <div class="card h-100">
+                    {% if item.image %}
+                        <img src="{{ item.image.url }}" class="card-img-top" alt="{{ item.title }}" style="height: 200px; object-fit: cover;">
+                    {% else %}
+                        <div style="height: 200px; background: linear-gradient(135deg, #1e4a6e, #2c6e9e); display: flex; align-items: center; justify-content: center;">
+                            <i class="fas fa-newspaper fa-3x text-white"></i>
+                        </div>
+                    {% endif %}
+                    <div class="card-body">
+                        <h5 class="card-title">{{ item.title }}</h5>
+                        <p class="card-text">{{ item.content|truncatechars:100 }}</p>
+                        <small class="text-muted">{{ item.date_posted|date:"d.m.Y" }}</small>
+                        <br>
+                        <a href="{% url 'news_detail' item.id %}" class="btn btn-link mt-2">Подробнее →</a>
+                    </div>
+                </div>
+            </div>
+        {% empty %}
+            <p class="text-center text-muted">Новостей пока нет. Зайдите в админку и добавьте новости.</p>
+        {% endfor %}
+    </div>
+    
+    <!-- Статистика УК -->
+    <div class="row mt-5">
+        <div class="col-12">
+            <h2 class="text-center mb-4"><i class="fas fa-chart-bar"></i> УК "ДомСервис" в цифрах</h2>
+        </div>
+        <div class="col-md-3 text-center mb-3">
+            <div class="card p-4">
+                <h3 class="text-primary">5000+</h3>
+                <p>Квартир под управлением</p>
+            </div>
+        </div>
+        <div class="col-md-3 text-center mb-3">
+            <div class="card p-4">
+                <h3 class="text-primary">98%</h3>
+                <p>Удовлетворенных жильцов</p>
+            </div>
+        </div>
+        <div class="col-md-3 text-center mb-3">
+            <div class="card p-4">
+                <h3 class="text-primary">24/7</h3>
+                <p>Аварийная служба</p>
+            </div>
+        </div>
+        <div class="col-md-3 text-center mb-3">
+            <div class="card p-4">
+                <h3 class="text-primary">15 мин</h3>
+                <p>Среднее время ответа</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    // Выбор города
+    function selectCity(city) {
+        localStorage.setItem('selectedCity', city);
+        const url = new URL(window.location.href);
+        url.searchParams.set('city', city);
+        window.location.href = url.toString();
+    }
+</script>
+{% endblock %}

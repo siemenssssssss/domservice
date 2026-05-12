@@ -1,0 +1,42 @@
+{% extends 'base.html' %}
+{% block title %}Информация о доме{% endblock %}
+{% block content %}
+<div class="container mt-4">
+    <h2 class="mb-4"><i class="fas fa-home"></i> Информация о доме</h2>
+    {% if house %}
+        <div class="row">
+            <div class="col-md-6">
+                <div class="card mb-4">
+                    <div class="card-header bg-primary text-white">Основные характеристики</div>
+                    <div class="card-body">
+                        <p><strong>Адрес:</strong> {{ house.address }}</p>
+                        <p><strong>Год постройки:</strong> {{ house.year_built }}</p>
+                        <p><strong>Этажей:</strong> {{ house.floors }}</p>
+                        <p><strong>Подъездов:</strong> {{ house.entrances }}</p>
+                        <p><strong>Квартир:</strong> {{ house.apartments }}</p>
+                        <p><strong>Общая площадь:</strong> {{ house.total_area }} м²</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="card mb-4">
+                    <div class="card-header bg-primary text-white">Управляющая компания</div>
+                    <div class="card-body">
+                        <p><strong>Компания:</strong> {{ house.management_company }}</p>
+                        <p><strong>Главный инженер:</strong> {{ house.chief_engineer|default:"-" }}</p>
+                        <p><strong>Диспетчерская:</strong> {{ house.phone }}</p>
+                        <p>{{ house.description|linebreaks }}</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    {% else %}
+        <div class="empty-state text-center py-5">
+            <i class="fas fa-building fa-4x text-muted mb-3"></i>
+            <h4>Информация о доме не добавлена</h4>
+            <p class="text-muted">Заполните информацию о доме в админ-панели.</p>
+            <a href="/admin/main/houseinfo/add/" class="btn btn-primary mt-2">Добавить в админке</a>
+        </div>
+    {% endif %}
+</div>
+{% endblock %}
