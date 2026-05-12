@@ -2,10 +2,7 @@ from django.db import models
 from django.contrib.auth.models import User
 from django.core.validators import MinValueValidator, MaxValueValidator
 
-# ========== ОСНОВНЫЕ МОДЕЛИ ==========
-
 class Profile(models.Model):
-    """Профиль жильца"""
     user = models.OneToOneField(User, on_delete=models.CASCADE, verbose_name='Пользователь')
     apartment_number = models.CharField(max_length=10, verbose_name='Номер квартиры')
     phone = models.CharField(max_length=20, verbose_name='Телефон')
@@ -20,7 +17,6 @@ class Profile(models.Model):
 
 
 class News(models.Model):
-    """Новости и объявления"""
     title = models.CharField(max_length=200, verbose_name='Заголовок')
     content = models.TextField(verbose_name='Содержание')
     image = models.ImageField(upload_to='news/', blank=True, null=True, verbose_name='Изображение')
@@ -37,7 +33,6 @@ class News(models.Model):
 
 
 class Service(models.Model):
-    """Услуги ЖКХ"""
     name = models.CharField(max_length=100, verbose_name='Название услуги')
     unit = models.CharField(max_length=20, verbose_name='Единица измерения', default='кВт/ч')
     price = models.DecimalField(max_digits=10, decimal_places=2, verbose_name='Тариф (руб)')
@@ -51,7 +46,6 @@ class Service(models.Model):
 
 
 class MeterReading(models.Model):
-    """Показания счетчиков"""
     user = models.ForeignKey(User, on_delete=models.CASCADE, verbose_name='Жилец')
     service = models.ForeignKey(Service, on_delete=models.CASCADE, verbose_name='Услуга')
     value = models.FloatField(validators=[MinValueValidator(0)], verbose_name='Показание')
@@ -68,7 +62,6 @@ class MeterReading(models.Model):
 
 
 class Request(models.Model):
-    """Заявки в диспетчерскую службу"""
     STATUS_CHOICES = [
         ('new', '🟡 Новая'),
         ('in_progress', '🔵 В работе'),
@@ -100,7 +93,6 @@ class Request(models.Model):
 
 
 class Payment(models.Model):
-    """Платежи"""
     user = models.ForeignKey(User, on_delete=models.CASCADE, verbose_name='Жилец')
     month = models.CharField(max_length=7, verbose_name='Месяц')
     amount = models.DecimalField(max_digits=10, decimal_places=2, verbose_name='Сумма')
@@ -116,7 +108,6 @@ class Payment(models.Model):
 
 
 class Document(models.Model):
-    """Документы"""
     title = models.CharField(max_length=200, verbose_name='Название')
     document_type = models.CharField(max_length=50, verbose_name='Тип')
     file = models.FileField(upload_to='documents/', verbose_name='Файл')
@@ -134,7 +125,6 @@ class Document(models.Model):
 
 
 class Notification(models.Model):
-    """Уведомления для пользователей"""
     user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='notifications', verbose_name='Пользователь')
     message = models.TextField(verbose_name='Сообщение')
     link = models.CharField(max_length=200, blank=True, verbose_name='Ссылка')
@@ -151,7 +141,6 @@ class Notification(models.Model):
 
 
 class RequestReview(models.Model):
-    """Отзывы на выполненные заявки"""
     request = models.OneToOneField('main.Request', on_delete=models.CASCADE, related_name='review', verbose_name='Заявка')
     rating = models.IntegerField(validators=[MinValueValidator(1), MaxValueValidator(5)], verbose_name='Оценка')
     comment = models.TextField(blank=True, verbose_name='Комментарий')
@@ -165,10 +154,7 @@ class RequestReview(models.Model):
         return f"{self.request.title} - {self.rating}★"
 
 
-# ========== НОВЫЕ МОДЕЛИ ==========
-
 class ShutdownSchedule(models.Model):
-    """График плановых отключений"""
     SERVICE_TYPES = [
         ('hot_water', 'Горячая вода'),
         ('cold_water', 'Холодная вода'),
@@ -199,7 +185,6 @@ class ShutdownSchedule(models.Model):
 
 
 class Employee(models.Model):
-    """Сотрудники УК"""
     user = models.OneToOneField(User, on_delete=models.SET_NULL, null=True, blank=True, verbose_name='Пользователь')
     name = models.CharField(max_length=100, verbose_name='Имя')
     position = models.CharField(max_length=100, verbose_name='Должность')
@@ -226,7 +211,6 @@ class Employee(models.Model):
 
 
 class EmployeeReview(models.Model):
-    """Отзывы о сотрудниках"""
     employee = models.ForeignKey(Employee, on_delete=models.CASCADE, related_name='reviews', verbose_name='Сотрудник')
     user = models.ForeignKey(User, on_delete=models.CASCADE, verbose_name='Пользователь')
     request = models.ForeignKey('main.Request', on_delete=models.CASCADE, null=True, blank=True, verbose_name='Заявка')
@@ -246,10 +230,7 @@ class EmployeeReview(models.Model):
         return f"{self.employee.name} - {self.rating}★"
 
 
-# ========== ИНФОРМАЦИЯ О ДОМЕ ==========
-
 class HouseInfo(models.Model):
-    """Информация о доме (заполняется автоматически или админом)"""
     address = models.CharField(max_length=300, unique=True, verbose_name='Адрес дома')
     building_year = models.IntegerField(null=True, blank=True, verbose_name='Год постройки')
     floors = models.IntegerField(null=True, blank=True, verbose_name='Количество этажей')
