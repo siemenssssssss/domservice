@@ -9,6 +9,12 @@ DEBUG = os.environ.get('DEBUG', 'True') == 'True'
 
 ALLOWED_HOSTS = ['*']
 
+# ДОБАВЛЕНО ДЛЯ CSRF (чтобы админка работала)
+CSRF_TRUSTED_ORIGINS = [
+    'https://domservice.onrender.com',
+    'http://domservice.onrender.com',
+]
+
 INSTALLED_APPS = [
     'django.contrib.admin',
     'django.contrib.auth',
@@ -31,7 +37,7 @@ MIDDLEWARE = [
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
 ]
 
-ROOT_URLCONF = 'ukproject.urls'  # ← так и оставь
+ROOT_URLCONF = 'ukproject.urls'
 
 TEMPLATES = [
     {
@@ -50,7 +56,7 @@ TEMPLATES = [
     },
 ]
 
-WSGI_APPLICATION = 'ukproject.wsgi.application'  # ← так и оставь
+WSGI_APPLICATION = 'ukproject.wsgi.application'
 
 DATABASES = {
     'default': {
