@@ -75,7 +75,6 @@ class HouseInfo(models.Model):
         return self.address_full
 
 
-# ========== ДОБАВЛЕНА МОДЕЛЬ PROFILE ==========
 class Profile(models.Model):
     """Профиль жильца"""
     user = models.OneToOneField(User, on_delete=models.CASCADE, verbose_name='Пользователь')
@@ -85,7 +84,7 @@ class Profile(models.Model):
     house = models.ForeignKey(HouseInfo, on_delete=models.SET_NULL, null=True, blank=True, verbose_name='Информация о доме')
     
     def __str__(self):
-        return f"{self.user.get_full_name()} - кв.{self.apartment_number}"
+        return f"{self.user.get_full_name() or self.user.username} - кв.{self.apartment_number}"
     
     class Meta:
         verbose_name = 'Профиль жильца'
