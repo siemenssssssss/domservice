@@ -1,5 +1,5 @@
 from django import forms
-from .models import MeterReading, Request
+from .models import MeterReading, Request, HouseInfo
 from django.contrib.auth.models import User
 from django.contrib.auth.forms import UserCreationForm
 
@@ -35,7 +35,11 @@ class RequestForm(forms.ModelForm):
         }
 
 class UserRegisterForm(UserCreationForm):
-    address = forms.CharField(max_length=300, label='Адрес дома', widget=forms.TextInput(attrs={'class': 'form-control'}))
+    house = forms.ModelChoiceField(
+        queryset=HouseInfo.objects.all(), 
+        label='Выберите ваш дом',
+        widget=forms.Select(attrs={'class': 'form-control'})
+    )
     apartment_number = forms.CharField(max_length=10, label='Номер квартиры', widget=forms.TextInput(attrs={'class': 'form-control'}))
     phone = forms.CharField(max_length=20, label='Телефон', widget=forms.TextInput(attrs={'class': 'form-control'}))
     first_name = forms.CharField(max_length=30, label='Имя', widget=forms.TextInput(attrs={'class': 'form-control'}))
@@ -44,4 +48,4 @@ class UserRegisterForm(UserCreationForm):
     
     class Meta:
         model = User
-        fields = ['username', 'first_name', 'last_name', 'email', 'address', 'apartment_number', 'phone', 'password1', 'password2']
+        fields = ['username', 'first_name', 'last_name', 'email', 'house', 'apartment_number', 'phone', 'password1', 'password2']
