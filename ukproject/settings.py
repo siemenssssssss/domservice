@@ -9,11 +9,19 @@ DEBUG = os.environ.get('DEBUG', 'True') == 'True'
 
 ALLOWED_HOSTS = ['*']
 
-# ДОБАВЛЕНО ДЛЯ CSRF (чтобы админка работала)
+# ========== НАСТРОЙКИ ДЛЯ CSRF (чтобы админка работала) ==========
 CSRF_TRUSTED_ORIGINS = [
     'https://domservice.onrender.com',
     'http://domservice.onrender.com',
 ]
+CSRF_COOKIE_SECURE = True
+CSRF_COOKIE_HTTPONLY = False
+CSRF_USE_SESSIONS = False
+CSRF_COOKIE_SAMESITE = 'Lax'
+
+# ========== НАСТРОЙКИ ДЛЯ SESSION (чтобы админка работала) ==========
+SESSION_COOKIE_SECURE = True
+SESSION_COOKIE_SAMESITE = 'Lax'
 
 INSTALLED_APPS = [
     'django.contrib.admin',
