@@ -2,89 +2,40 @@
 {% block title %}Личный кабинет{% endblock %}
 {% block content %}
 <div class="container mt-4">
-    <h2 class="mb-4"><i class="fas fa-tachometer-alt"></i> Личный кабинет</h2>
+    <h2 class="mb-4">🏠 Личный кабинет</h2>
     
     <div class="row">
-        <div class="col-md-4 mb-4">
-            <div class="card text-center">
+        <div class="col-md-6 mb-4">
+            <div class="card">
+                <div class="card-header bg-primary text-white">
+                    📋 Мои данные
+                </div>
                 <div class="card-body">
-                    <i class="fas fa-user-circle fa-4x text-primary mb-3"></i>
-                    <h4>{{ user.get_full_name }}</h4>
-                    <p class="text-muted">Квартира №{{ profile.apartment_number }}</p>
-                    <p>Лицевой счет: {{ profile.personal_account }}</p>
+                    <p><strong>Имя:</strong> {{ profile.user.get_full_name|default:profile.user.username }}</p>
+                    <p><strong>Квартира:</strong> №{{ profile.apartment_number }}</p>
+                    <p><strong>Телефон:</strong> {{ profile.phone }}</p>
+                    <p><strong>Лицевой счет:</strong> {{ profile.personal_account }}</p>
                     <a href="{% url 'profile_edit' %}" class="btn btn-outline-primary btn-sm">Редактировать</a>
                 </div>
             </div>
         </div>
         
-        <div class="col-md-4 mb-4">
-            <div class="card text-center {% if total_debt > 0 %}bg-warning{% else %}bg-success text-white{% endif %}">
-                <div class="card-body">
-                    <i class="fas fa-credit-card fa-3x mb-3"></i>
-                    <h3>{{ total_debt }} ₽</h3>
-                    <p>Задолженность</p>
-                    <a href="{% url 'payments' %}" class="btn btn-dark btn-sm">Оплатить</a>
-                </div>
-            </div>
-        </div>
-        
-        <div class="col-md-4 mb-4">
-            <div class="card text-center bg-primary text-white">
-                <div class="card-body">
-                    <i class="fas fa-chart-line fa-3x mb-3"></i>
-                    <h3>{{ readings.count }}</h3>
-                    <p>Передано показаний за {{ current_month }}</p>
-                    <a href="{% url 'readings' %}" class="btn btn-light btn-sm">Передать</a>
-                </div>
-            </div>
-        </div>
-    </div>
-    
-    <div class="row">
-        <div class="col-md-6">
+        <div class="col-md-6 mb-4">
             <div class="card">
-                <div class="card-header bg-primary text-white">
-                    <i class="fas fa-clipboard-list"></i> Активные заявки
+                <div class="card-header bg-success text-white">
+                    🏢 Информация о доме
                 </div>
                 <div class="card-body">
-                    {% for req in active_requests %}
-                        <div class="mb-2 border-bottom pb-2">
-                            <div class="d-flex justify-content-between">
-                                <strong>{{ req.title }}</strong>
-                                <span class="status-badge status-{{ req.status }}">{{ req.get_status_display }}</span>
-                            </div>
-                            <p class="mb-1 small">{{ req.description|truncatechars:80 }}</p>
-                            <small class="text-muted">{{ req.created_at|date:"d.m.Y H:i" }}</small>
-                            <a href="{% url 'request_detail' req.id %}" class="btn btn-sm btn-link">Подробнее</a>
-                        </div>
-                    {% empty %}
-                        <p class="text-muted text-center">Нет активных заявок</p>
-                    {% endfor %}
-                </div>
-            </div>
-        </div>
-        
-        <div class="col-md-6">
-            <div class="card">
-                <div class="card-header bg-primary text-white">
-                    <i class="fas fa-newspaper"></i> Последние новости
-                </div>
-                <div class="card-body">
-                    {% for news in recent_news %}
-                        <div class="mb-2 border-bottom pb-2">
-                            <div class="d-flex justify-content-between">
-                                <strong>{{ news.title }}</strong>
-                                {% if news.is_important %}
-                                    <span class="badge bg-danger">Важно</span>
-                                {% endif %}
-                            </div>
-                            <p class="mb-1 small">{{ news.content|truncatechars:80 }}</p>
-                            <small class="text-muted">{{ news.date_posted|date:"d.m.Y" }}</small>
-                            <a href="{% url 'news_detail' news.id %}" class="btn btn-sm btn-link">Подробнее →</a>
-                        </div>
-                    {% empty %}
-                        <p class="text-muted text-center">Новостей пока нет</p>
-                    {% endfor %}
+                    <p><strong>📍 Адрес:</strong> {{ profile.house.address|default:"—" }}</p>
+                    <p><strong>🏗 Год постройки:</strong> {{ profile.house.building_year|default:"—" }}</p>
+                    <p><strong>🏢 Этажей:</strong> {{ profile.house.floors|default:"—" }}</p>
+                    <p><strong>🚪 Подъездов:</strong> {{ profile.house.entrances|default:"—" }}</p>
+                    <p><strong>🏘 Квартир:</strong> {{ profile.house.flat_count|default:"—" }}</p>
+                    <p><strong>📐 Общая площадь:</strong> {{ profile.house.total_area|default:"—" }} м²</p>
+                    <p><strong>🏢 Управляющая компания:</strong> {{ profile.house.managing_company|default:"—" }}</p>
+                    <p><strong>👨‍💼 Главный инженер:</strong> {{ profile.house.chief_engineer|default:"—" }}</p>
+                    <p><strong>📞 Диспетчерская:</strong> {{ profile.house.emergency_phone|default:"—" }}</p>
+                    <p><strong>📝 Описание:</strong> {{ profile.house.description|default:"—" }}</p>
                 </div>
             </div>
         </div>
