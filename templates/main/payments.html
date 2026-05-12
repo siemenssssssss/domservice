@@ -1,0 +1,109 @@
+{% extends 'base.html' %}
+{% block title %}Платежи и начисления{% endblock %}
+{% block content %}
+<div class="container mt-4">
+    <h2 class="mb-4"><i class="fas fa-credit-card"></i> Платежи и начисления</h2>
+    
+    {% if total_debt > 0 %}
+        <div class="alert alert-warning alert-dismissible fade show" role="alert">
+            <i class="fas fa-exclamation-triangle"></i> 
+            <strong>Внимание!</strong> Ваша задолженность составляет <strong>{{ total_debt }} руб.</strong>
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        </div>
+    {% else %}
+        <div class="alert alert-success alert-dismissible fade show" role="alert">
+            <i class="fas fa-check-circle"></i> 
+            У вас нет задолженности. Спасибо за своевременную оплату!
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        </div>
+    {% endif %}
+    
+    <div class="card shadow-sm">
+        <div class="card-header bg-primary text-white">
+            <i class="fas fa-history"></i> История платежей
+        </div>
+        <div class="card-body">
+            <div class="table-responsive">
+                <table class="table table-hover table-striped">
+                    <thead class="table-dark">
+                         <tr>
+                            <th>Месяц</th>
+                            <th>Сумма</th>
+                            <th>Статус</th>
+                            <th>Действие</th>
+                         </tr>
+                    </thead>
+                    <tbody>
+                        {% for payment in payments %}
+                         <tr>
+                            <td><strong>{{ payment.month }}</strong></td>
+                            <td>{{ payment.amount|floatformat:2 }} руб.</td>
+                            <td>
+                                {% if payment.is_paid %}
+                                    <span class="badge bg-success">
+                                        <i class="fas fa-check-circle"></i> Оплачено
+                                    </span>
+                                    {% if payment.paid_at %}
+                                        <br><small class="text-muted">{{ payment.paid_at|date:"d.m.Y H:i" }}</small>
+                                    {% endif %}
+                                {% else %}
+                                    <span class="badge bg-danger">
+                                        <i class="fas fa-times-circle"></i> Не оплачено
+                                    </span>
+                                {% endif %}
+                            </td>
+                            <td>
+                                {% if not payment.is_paid %}
+                                    <a href="{% url 'pay' %}?amount={{ payment.amount }}&month={{ payment.month }}" class="btn btn-sm btn-primary">
+                                        <i class="fas fa-credit-card"></i> Оплатить
+                                    </a>
+                                {% else %}
+                                    <button class="btn btn-sm btn-secondary" disabled>
+                                        <i class="fas fa-check"></i> Оплачено
+                                    </button>
+                                {% endif %}
+                            </td>
+                         </tr>
+                        {% empty %}
+                         <tr>
+                            <td colspan="4" class="text-center text-muted py-5">
+                                <i class="fas fa-inbox fa-3x mb-3"></i>
+                                <p>Нет данных о платежах</p>
+                                <small>Здесь будут отображаться ваши начисления</small>
+                            </td>
+                         </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+    
+    <div class="row mt-4">
+        <div class="col-md-6">
+            <div class="card bg-light">
+                <div class="card-body">
+                    <h5><i class="fas fa-info-circle"></i> Информация</h5>
+                    <p class="mb-0 small">
+                        - Платежи формируются на основании переданных показаний счетчиков<br>
+                        - Оплатить можно онлайн банковской картой<br>
+                        - Квитанция придет на email после оплаты
+                    </p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-6">
+            <div class="card bg-light">
+                <div class="card-body">
+                    <h5><i class="fas fa-phone-alt"></i> Нужна помощь?</h5>
+                    <p class="mb-0 small">
+                        По вопросам оплаты обращайтесь:<br>
+                        📞 +7 (495) 123-45-67 (бухгалтерия)<br>
+                        ✉️ finance@domservice.ru
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
