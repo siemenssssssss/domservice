@@ -2,8 +2,33 @@ from django.db import models
 from django.contrib.auth.models import User
 from django.core.validators import MinValueValidator, MaxValueValidator
 
+# ========== ИНФОРМАЦИЯ О ДОМЕ ==========
+
+class HouseInfo(models.Model):
+    address = models.CharField(max_length=300, unique=True, verbose_name='Адрес дома')
+    building_year = models.IntegerField(null=True, blank=True, verbose_name='Год постройки')
+    floors = models.IntegerField(null=True, blank=True, verbose_name='Количество этажей')
+    entrances = models.IntegerField(null=True, blank=True, verbose_name='Количество подъездов')
+    flat_count = models.IntegerField(null=True, blank=True, verbose_name='Количество квартир')
+    total_area = models.FloatField(null=True, blank=True, verbose_name='Общая площадь (м²)')
+    managing_company = models.CharField(max_length=200, blank=True, verbose_name='Управляющая компания')
+    chief_engineer = models.CharField(max_length=200, blank=True, verbose_name='Главный инженер')
+    emergency_phone = models.CharField(max_length=20, blank=True, verbose_name='Телефон диспетчерской')
+    description = models.TextField(blank=True, verbose_name='Описание')
+    
+    def __str__(self):
+        return self.address
+    
+    class Meta:
+        verbose_name = 'Информация о доме'
+        verbose_name_plural = 'Информация о домах'
+
+
+# ========== ПРОФИЛЬ ЖИЛЬЦА ==========
+
 class Profile(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE, verbose_name='Пользователь')
+    house = models.ForeignKey(HouseInfo, on_delete=models.SET_NULL, null=True, blank=True, verbose_name='Дом')
     apartment_number = models.CharField(max_length=10, verbose_name='Номер квартиры')
     phone = models.CharField(max_length=20, verbose_name='Телефон')
     personal_account = models.CharField(max_length=20, blank=True, verbose_name='Лицевой счет')
@@ -15,6 +40,8 @@ class Profile(models.Model):
         verbose_name = 'Профиль жильца'
         verbose_name_plural = 'Профили жильцов'
 
+
+# ========== ОСТАЛЬНЫЕ МОДЕЛИ ==========
 
 class News(models.Model):
     title = models.CharField(max_length=200, verbose_name='Заголовок')
@@ -141,7 +168,7 @@ class Notification(models.Model):
 
 
 class RequestReview(models.Model):
-    request = models.OneToOneField('main.Request', on_delete=models.CASCADE, related_name='review', verbose_name='Заявка')
+    request = models.OneToOneField(Request, on_delete=models.CASCADE, related_name='review', verbose_name='Заявка')
     rating = models.IntegerField(validators=[MinValueValidator(1), MaxValueValidator(5)], verbose_name='Оценка')
     comment = models.TextField(blank=True, verbose_name='Комментарий')
     created_at = models.DateTimeField(auto_now_add=True, verbose_name='Дата')
@@ -213,7 +240,7 @@ class Employee(models.Model):
 class EmployeeReview(models.Model):
     employee = models.ForeignKey(Employee, on_delete=models.CASCADE, related_name='reviews', verbose_name='Сотрудник')
     user = models.ForeignKey(User, on_delete=models.CASCADE, verbose_name='Пользователь')
-    request = models.ForeignKey('main.Request', on_delete=models.CASCADE, null=True, blank=True, verbose_name='Заявка')
+    request = models.ForeignKey(Request, on_delete=models.CASCADE, null=True, blank=True, verbose_name='Заявка')
     rating = models.IntegerField(validators=[MinValueValidator(1), MaxValueValidator(5)], verbose_name='Оценка')
     comment = models.TextField(blank=True, verbose_name='Комментарий')
     created_at = models.DateTimeField(auto_now_add=True, verbose_name='Дата')
@@ -228,23 +255,3 @@ class EmployeeReview(models.Model):
     
     def __str__(self):
         return f"{self.employee.name} - {self.rating}★"
-
-
-class HouseInfo(models.Model):
-    address = models.CharField(max_length=300, unique=True, verbose_name='Адрес дома')
-    building_year = models.IntegerField(null=True, blank=True, verbose_name='Год постройки')
-    floors = models.IntegerField(null=True, blank=True, verbose_name='Количество этажей')
-    entrances = models.IntegerField(null=True, blank=True, verbose_name='Количество подъездов')
-    flat_count = models.IntegerField(null=True, blank=True, verbose_name='Количество квартир')
-    total_area = models.FloatField(null=True, blank=True, verbose_name='Общая площадь (м²)')
-    managing_company = models.CharField(max_length=200, blank=True, verbose_name='Управляющая компания')
-    chief_engineer = models.CharField(max_length=200, blank=True, verbose_name='Главный инженер')
-    emergency_phone = models.CharField(max_length=20, blank=True, verbose_name='Телефон диспетчерской')
-    description = models.TextField(blank=True, verbose_name='Описание')
-    
-    def __str__(self):
-        return self.address
-    
-    class Meta:
-        verbose_name = 'Информация о доме'
-        verbose_name_plural = 'Информация о домах'
