@@ -1,0 +1,94 @@
+{% extends 'base.html' %}
+{% block title %}Рейтинг сотрудников{% endblock %}
+{% block content %}
+<div class="container mt-4">
+    <h2 class="mb-4"><i class="fas fa-star"></i> Рейтинг сотрудников</h2>
+    
+    <div class="alert alert-info mb-4">
+        <i class="fas fa-info-circle"></i> Оцените работу наших сотрудников! Ваши отзывы помогают нам становиться лучше.
+    </div>
+    
+    <div class="row">
+        {% for employee in employees %}
+            <div class="col-md-4 mb-4">
+                <div class="card h-100 text-center shadow-sm">
+                    {% if employee.photo %}
+                        <img src="{{ employee.photo.url }}" class="card-img-top" alt="{{ employee.name }}" style="height: 200px; object-fit: cover;">
+                    {% else %}
+                        <div style="height: 200px; background: linear-gradient(135deg, #1e4a6e, #2c6e9e); display: flex; align-items: center; justify-content: center;">
+                            <i class="fas fa-user-circle fa-4x text-white"></i>
+                        </div>
+                    {% endif %}
+                    <div class="card-body">
+                        <h5 class="card-title">{{ employee.name }}</h5>
+                        <p class="text-muted">{{ employee.position }}</p>
+                        <p class="small">Стаж: {{ employee.experience }} лет</p>
+                        <div class="mb-2">
+                            {% for i in "12345"|make_list %}
+                                {% if forloop.counter <= employee.rating|floatformat:0 %}
+                                    <i class="fas fa-star text-warning"></i>
+                                {% else %}
+                                    <i class="far fa-star text-warning"></i>
+                                {% endif %}
+                            {% endfor %}
+                            <span class="ms-2">{{ employee.rating|floatformat:1 }} / 5</span>
+                        </div>
+                        <p class="small text-muted">Отзывов: {{ employee.total_reviews }}</p>
+                        {% if employee.description %}
+                            <p class="small mt-2">{{ employee.description|truncatechars:100 }}</p>
+                        {% endif %}
+                        <button class="btn btn-outline-primary btn-sm mt-2" data-bs-toggle="modal" data-bs-target="#reviewModal{{ employee.id }}">
+                            <i class="fas fa-comment"></i> Оставить отзыв
+                        </button>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Модальное окно для отзыва -->
+            <div class="modal fade" id="reviewModal{{ employee.id }}" tabindex="-1">
+                <div class="modal-dialog">
+                    <div class="modal-content">
+                        <form method="post" action="{% url 'add_employee_review' employee.id %}">
+                            {% csrf_token %}
+                            <div class="modal-header bg-primary text-white">
+                                <h5 class="modal-title">Отзыв о {{ employee.name }}</h5>
+                                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                            </div>
+                            <div class="modal-body">
+                                <div class="mb-3">
+                                    <label class="form-label">Оценка</label>
+                                    <select name="rating" class="form-select" required>
+                                        <option value="">Выберите оценку</option>
+                                        <option value="5">5 - Отлично</option>
+                                        <option value="4">4 - Хорошо</option>
+                                        <option value="3">3 - Удовлетворительно</option>
+                                        <option value="2">2 - Неудовлетворительно</option>
+                                        <option value="1">1 - Плохо</option>
+                                    </select>
+                                </div>
+                                <div class="mb-3">
+                                    <label class="form-label">Комментарий</label>
+                                    <textarea name="comment" class="form-control" rows="3" placeholder="Расскажите о вашем опыте..."></textarea>
+                                </div>
+                            </div>
+                            <div class="modal-footer">
+                                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Отмена</button>
+                                <button type="submit" class="btn btn-primary">Отправить отзыв</button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        {% empty %}
+            <div class="col-12 text-center">
+                <div class="empty-state">
+                    <i class="fas fa-users fa-4x text-muted mb-3"></i>
+                    <h4>Нет данных о сотрудниках</h4>
+                    <p>Добавьте сотрудников в админ-панели.</p>
+                    <a href="/admin/main/employee/add/" class="btn btn-primary">Добавить сотрудника</a>
+                </div>
+            </div>
+        {% endfor %}
+    </div>
+</div>
+{% endblock %}
