@@ -1,0 +1,383 @@
+[
+  {
+    "model": "main.HouseInfo",
+    "pk": 1,
+    "fields": {
+      "address": "Орск, ул. Ленина, 10",
+      "building_year": 1985,
+      "floors": 5,
+      "entrances": 4,
+      "flat_count": 80,
+      "total_area": 5200.0,
+      "managing_company": "ООО \"ЖЭУ-1\"",
+      "chief_engineer": "Петров Иван Сергеевич",
+      "emergency_phone": "+7 (3537) 25-25-25",
+      "description": "Дом оборудован пандусами, видеонаблюдением"
+    }
+  },
+  {
+    "model": "main.HouseInfo",
+    "pk": 2,
+    "fields": {
+      "address": "Орск, ул. Гагарина, 25",
+      "building_year": 1992,
+      "floors": 9,
+      "entrances": 3,
+      "flat_count": 108,
+      "total_area": 7800.0,
+      "managing_company": "ООО \"ЖЭУ-2\"",
+      "chief_engineer": "Сидорова Анна Сергеевна",
+      "emergency_phone": "+7 (3537) 26-26-26",
+      "description": "Лифты, мусоропровод, детская площадка"
+    }
+  },
+  {
+    "model": "main.HouseInfo",
+    "pk": 3,
+    "fields": {
+      "address": "Орск, пр. Мира, 42",
+      "building_year": 1978,
+      "floors": 5,
+      "entrances": 6,
+      "flat_count": 120,
+      "total_area": 7100.0,
+      "managing_company": "ООО \"ЖЭУ-3\"",
+      "chief_engineer": "Козлов Дмитрий Николаевич",
+      "emergency_phone": "+7 (3537) 27-27-27",
+      "description": "Пандусы, спортивная площадка"
+    }
+  },
+  {
+    "model": "main.News",
+    "pk": 1,
+    "fields": {
+      "title": "Плановое отключение горячей воды",
+      "content": "Уважаемые жильцы! С 15 мая по 20 мая будет плановое отключение горячей воды. Приносим извинения за временные неудобства.",
+      "is_important": true,
+      "image": "",
+      "date_posted": "2026-05-13T10:00:00Z"
+    }
+  },
+  {
+    "model": "main.News",
+    "pk": 2,
+    "fields": {
+      "title": "Субботник во дворе",
+      "content": "Приглашаем всех жильцов на субботник 25 мая в 10:00. Будет организован инвентарь и горячий чай.",
+      "is_important": true,
+      "image": "",
+      "date_posted": "2026-05-13T10:00:00Z"
+    }
+  },
+  {
+    "model": "main.News",
+    "pk": 3,
+    "fields": {
+      "title": "Установка видеонаблюдения",
+      "content": "Во всех подъездах установлены камеры видеонаблюдения. Безопасность наших жильцов — наш приоритет.",
+      "is_important": false,
+      "image": "",
+      "date_posted": "2026-05-12T10:00:00Z"
+    }
+  },
+  {
+    "model": "main.Service",
+    "pk": 1,
+    "fields": {
+      "name": "Электроэнергия",
+      "unit": "кВт/ч",
+      "price": "4.50"
+    }
+  },
+  {
+    "model": "main.Service",
+    "pk": 2,
+    "fields": {
+      "name": "Холодная вода",
+      "unit": "м³",
+      "price": "35.00"
+    }
+  },
+  {
+    "model": "main.Service",
+    "pk": 3,
+    "fields": {
+      "name": "Горячая вода",
+      "unit": "м³",
+      "price": "120.00"
+    }
+  },
+  {
+    "model": "main.Service",
+    "pk": 4,
+    "fields": {
+      "name": "Отопление",
+      "unit": "Гкал",
+      "price": "1800.00"
+    }
+  },
+  {
+    "model": "main.Service",
+    "pk": 5,
+    "fields": {
+      "name": "Содержание жилья",
+      "unit": "м²",
+      "price": "25.50"
+    }
+  },
+  {
+    "model": "main.Employee",
+    "pk": 1,
+    "fields": {
+      "name": "Петров Иван Сергеевич",
+      "position": "Главный инженер",
+      "rating": 4.8,
+      "total_reviews": 0,
+      "is_active": true,
+      "description": "Высшая категория, опыт работы 15 лет",
+      "experience": 15
+    }
+  },
+  {
+    "model": "main.Employee",
+    "pk": 2,
+    "fields": {
+      "name": "Сидорова Анна Сергеевна",
+      "position": "Диспетчер",
+      "rating": 4.9,
+      "total_reviews": 0,
+      "is_active": true,
+      "description": "Вежливая, быстро решает вопросы",
+      "experience": 8
+    }
+  },
+  {
+    "model": "main.Employee",
+    "pk": 3,
+    "fields": {
+      "name": "Козлов Дмитрий Николаевич",
+      "position": "Электрик",
+      "rating": 4.7,
+      "total_reviews": 0,
+      "is_active": true,
+      "description": "Опыт работы 12 лет",
+      "experience": 12
+    }
+  },
+  {
+    "model": "main.Employee",
+    "pk": 4,
+    "fields": {
+      "name": "Морозова Елена Петровна",
+      "position": "Сантехник",
+      "rating": 4.8,
+      "total_reviews": 0,
+      "is_active": true,
+      "description": "Аккуратно выполняет работу",
+      "experience": 10
+    }
+  },
+  {
+    "model": "main.Employee",
+    "pk": 5,
+    "fields": {
+      "name": "Васильев Андрей Владимирович",
+      "position": "Мастер участка",
+      "rating": 4.6,
+      "total_reviews": 0,
+      "is_active": true,
+      "description": "Контролирует качество работ",
+      "experience": 7
+    }
+  },
+  {
+    "model": "main.ShutdownSchedule",
+    "pk": 1,
+    "fields": {
+      "service_type": "hot_water",
+      "start_date": "2026-05-15T09:00:00Z",
+      "end_date": "2026-05-20T18:00:00Z",
+      "address": "",
+      "description": "Плановые профилактические работы",
+      "is_active": true
+    }
+  },
+  {
+    "model": "main.ShutdownSchedule",
+    "pk": 2,
+    "fields": {
+      "service_type": "electricity",
+      "start_date": "2026-05-18T10:00:00Z",
+      "end_date": "2026-05-18T16:00:00Z",
+      "address": "Орск, ул. Ленина, 10",
+      "description": "Замена трансформатора",
+      "is_active": true
+    }
+  },
+  {
+    "model": "main.ShutdownSchedule",
+    "pk": 3,
+    "fields": {
+      "service_type": "cold_water",
+      "start_date": "2026-05-20T09:00:00Z",
+      "end_date": "2026-05-20T14:00:00Z",
+      "address": "Орск, ул. Гагарина, 25",
+      "description": "Ремонт задвижки",
+      "is_active": true
+    }
+  },
+  {
+    "model": "main.Document",
+    "pk": 1,
+    "fields": {
+      "title": "Устав УК",
+      "document_type": "Устав",
+      "description": "Устав управляющей компании",
+      "file": "",
+      "is_public": true,
+      "date_posted": "2026-05-13T00:00:00Z"
+    }
+  },
+  {
+    "model": "main.Document",
+    "pk": 2,
+    "fields": {
+      "title": "Лицензия на деятельность",
+      "document_type": "Лицензия",
+      "description": "Лицензия №12345 от 01.01.2020",
+      "file": "",
+      "is_public": true,
+      "date_posted": "2026-05-13T00:00:00Z"
+    }
+  },
+  {
+    "model": "main.Document",
+    "pk": 3,
+    "fields": {
+      "title": "Правила проживания",
+      "document_type": "Правила",
+      "description": "Правила проживания в многоквартирном доме",
+      "file": "",
+      "is_public": true,
+      "date_posted": "2026-05-13T00:00:00Z"
+    }
+  },
+  {
+    "model": "main.Payment",
+    "pk": 1,
+    "fields": {
+      "user": 1,
+      "month": "01.2026",
+      "amount": "4500.00",
+      "is_paid": true,
+      "paid_at": "2026-01-15T00:00:00Z"
+    }
+  },
+  {
+    "model": "main.Payment",
+    "pk": 2,
+    "fields": {
+      "user": 1,
+      "month": "02.2026",
+      "amount": "4500.00",
+      "is_paid": true,
+      "paid_at": "2026-02-15T00:00:00Z"
+    }
+  },
+  {
+    "model": "main.Payment",
+    "pk": 3,
+    "fields": {
+      "user": 1,
+      "month": "03.2026",
+      "amount": "4800.00",
+      "is_paid": false,
+      "paid_at": null
+    }
+  },
+  {
+    "model": "main.Payment",
+    "pk": 4,
+    "fields": {
+      "user": 1,
+      "month": "04.2026",
+      "amount": "4500.00",
+      "is_paid": false,
+      "paid_at": null
+    }
+  },
+  {
+    "model": "main.Payment",
+    "pk": 5,
+    "fields": {
+      "user": 1,
+      "month": "05.2026",
+      "amount": "4500.00",
+      "is_paid": false,
+      "paid_at": null
+    }
+  },
+  {
+    "model": "main.Request",
+    "pk": 1,
+    "fields": {
+      "user": 1,
+      "category": "plumbing",
+      "title": "Течёт кран",
+      "description": "На кухне течёт кран, нужна замена прокладки",
+      "photo": "",
+      "status": "completed",
+      "admin_comment": "Выполнено 12.05.2026",
+      "created_at": "2026-05-10T00:00:00Z"
+    }
+  },
+  {
+    "model": "main.Request",
+    "pk": 2,
+    "fields": {
+      "user": 1,
+      "category": "electrical",
+      "title": "Нет света",
+      "description": "В подъезде не горит лампочка на 3 этаже",
+      "photo": "",
+      "status": "in_progress",
+      "admin_comment": "Заявка принята, мастер выехал",
+      "created_at": "2026-05-12T00:00:00Z"
+    }
+  },
+  {
+    "model": "main.Request",
+    "pk": 3,
+    "fields": {
+      "user": 1,
+      "category": "heating",
+      "title": "Холодные батареи",
+      "description": "В комнате батарея еле тёплая",
+      "photo": "",
+      "status": "new",
+      "admin_comment": "",
+      "created_at": "2026-05-13T00:00:00Z"
+    }
+  },
+  {
+    "model": "main.RequestReview",
+    "pk": 1,
+    "fields": {
+      "request": 1,
+      "rating": 5,
+      "comment": "Быстро приехали, всё починили. Спасибо!",
+      "created_at": "2026-05-11T00:00:00Z"
+    }
+  },
+  {
+    "model": "main.Notification",
+    "pk": 1,
+    "fields": {
+      "user": 1,
+      "message": "Ваша заявка №1 выполнена",
+      "link": "/requests/1/",
+      "is_read": false,
+      "created_at": "2026-05-11T00:00:00Z"
+    }
+  }
+]
