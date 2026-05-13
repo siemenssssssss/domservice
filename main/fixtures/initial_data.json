@@ -4,7 +4,13 @@
     "pk": 1,
     "fields": {
       "address": "Орск, ул. Ленина, 10",
+      "building_year": 1985,
+      "floors": 5,
+      "entrances": 4,
+      "flat_count": 80,
+      "total_area": 5200.0,
       "managing_company": "ООО \"ЖЭУ-1\"",
+      "chief_engineer": "Петров Иван Сергеевич",
       "emergency_phone": "+7 (3537) 25-25-25",
       "description": "Дом оборудован пандусами, видеонаблюдением"
     }
@@ -14,7 +20,13 @@
     "pk": 2,
     "fields": {
       "address": "Орск, ул. Гагарина, 25",
+      "building_year": 1992,
+      "floors": 9,
+      "entrances": 3,
+      "flat_count": 108,
+      "total_area": 7800.0,
       "managing_company": "ООО \"ЖЭУ-2\"",
+      "chief_engineer": "Сидорова Анна Сергеевна",
       "emergency_phone": "+7 (3537) 26-26-26",
       "description": "Лифты, мусоропровод, детская площадка"
     }
@@ -24,7 +36,13 @@
     "pk": 3,
     "fields": {
       "address": "Орск, пр. Мира, 42",
+      "building_year": 1978,
+      "floors": 5,
+      "entrances": 6,
+      "flat_count": 120,
+      "total_area": 7100.0,
       "managing_company": "ООО \"ЖЭУ-3\"",
+      "chief_engineer": "Козлов Дмитрий Николаевич",
       "emergency_phone": "+7 (3537) 27-27-27",
       "description": "Пандусы, спортивная площадка"
     }
