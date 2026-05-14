@@ -7,7 +7,6 @@ SECRET_KEY = os.environ.get('SECRET_KEY', 'django-insecure-eq%*zgbi*x29ou*v9u9t7
 
 DEBUG = os.environ.get('DEBUG', 'True') == 'True'
 
-# РАЗРЕШЁННЫЕ ХОСТЫ
 ALLOWED_HOSTS = [
     'domserv.space',
     'www.domserv.space',
@@ -15,7 +14,6 @@ ALLOWED_HOSTS = [
     '127.0.0.1',
 ]
 
-# ДОВЕРЕННЫЕ ОРИГИНЫ ДЛЯ CSRF
 CSRF_TRUSTED_ORIGINS = [
     'https://domserv.space',
     'http://domserv.space',
@@ -73,7 +71,6 @@ TEMPLATES = [
 
 WSGI_APPLICATION = 'ukproject.wsgi.application'
 
-# НАСТРОЙКИ БАЗЫ ДАННЫХ MYSQL (для Reg.ru)
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.mysql',
@@ -110,7 +107,7 @@ LOGOUT_REDIRECT_URL = 'home'
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
-# ========== НАСТРОЙКИ ДЛЯ ТЕМЫ UNFOLD (КРАСИВАЯ АДМИНКА) ==========
+# НАСТРОЙКИ ДЛЯ ТЕМЫ UNFOLD (БЕЗ ОШИБОК)
 UNFOLD = {
     "SITE_TITLE": "ДомСервис",
     "SITE_HEADER": "Управляющая компания",
@@ -121,39 +118,5 @@ UNFOLD = {
     "SIDEBAR": {
         "show_search": True,
         "show_all_applications": True,
-        "navigation": [
-            {
-                "title": "Управление",
-                "items": [
-                    {"title": "Профили жильцов", "icon": "user", "link": "/admin/main/profile/"},
-                    {"title": "Сотрудники", "icon": "users", "link": "/admin/main/employee/"},
-                    {"title": "Услуги", "icon": "wrench", "link": "/admin/main/service/"},
-                ],
-            },
-            {
-                "title": "Содержание",
-                "items": [
-                    {"title": "Новости", "icon": "newspaper", "link": "/admin/main/news/"},
-                    {"title": "Документы", "icon": "file-text", "link": "/admin/main/document/"},
-                    {"title": "График отключений", "icon": "calendar", "link": "/admin/main/shutdownschedule/"},
-                ],
-            },
-            {
-                "title": "Учёт",
-                "items": [
-                    {"title": "Заявки", "icon": "clipboard-list", "link": "/admin/main/request/"},
-                    {"title": "Платежи", "icon": "credit-card", "link": "/admin/main/payment/"},
-                    {"title": "Показания", "icon": "tachometer-alt", "link": "/admin/main/meterreading/"},
-                ],
-            },
-        ],
-    },
-    "COLORS": {
-        "primary": "#1e4a6e",
-        "secondary": "#2c6e9e",
-        "success": "#28a745",
-        "danger": "#dc3545",
-        "warning": "#ffc107",
-        "info": "#17a2b8",
     },
 }
