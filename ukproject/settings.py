@@ -7,19 +7,25 @@ SECRET_KEY = os.environ.get('SECRET_KEY', 'django-insecure-eq%*zgbi*x29ou*v9u9t7
 
 DEBUG = os.environ.get('DEBUG', 'True') == 'True'
 
-ALLOWED_HOSTS = ['*']
-
-# ========== НАСТРОЙКИ ДЛЯ CSRF (чтобы админка работала) ==========
-CSRF_TRUSTED_ORIGINS = [
-    'https://domservice.onrender.com',
-    'http://domservice.onrender.com',
+# РАЗРЕШЁННЫЕ ХОСТЫ ДЛЯ RAILWAY
+ALLOWED_HOSTS = [
+    'domservice-production.up.railway.app',
+    'domservice.up.railway.app',
+    'localhost',
+    '127.0.0.1',
 ]
+
+# ДОВЕРЕННЫЕ ОРИГИНЫ ДЛЯ CSRF (ОБЯЗАТЕЛЬНО ДЛЯ RAILWAY)
+CSRF_TRUSTED_ORIGINS = [
+    'https://domservice-production.up.railway.app',
+    'https://domservice.up.railway.app',
+]
+
 CSRF_COOKIE_SECURE = True
 CSRF_COOKIE_HTTPONLY = False
 CSRF_USE_SESSIONS = False
 CSRF_COOKIE_SAMESITE = 'Lax'
 
-# ========== НАСТРОЙКИ ДЛЯ SESSION (чтобы админка работала) ==========
 SESSION_COOKIE_SECURE = True
 SESSION_COOKIE_SAMESITE = 'Lax'
 
