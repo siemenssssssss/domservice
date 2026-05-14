@@ -116,6 +116,7 @@ JAZZMIN_SETTINGS = {
     "copyright": "ДомСервис",
     "show_sidebar": True,
     "navigation_expanded": True,
+    "custom_css": "css/custom_admin.css",
     "icons": {
         "auth": "fas fa-users-cog",
         "auth.user": "fas fa-user",
