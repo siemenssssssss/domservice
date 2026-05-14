@@ -1,0 +1,42 @@
+{% extends "admin/base_site.html" %}
+{% load static %}
+
+{% block extrastyle %}
+{{ block.super }}
+<link rel="stylesheet" href="{% static 'css/style.css' %}">
+<style>
+    body {
+        background: linear-gradient(135deg, #0a2b3e 0%, #1e4a6e 100%) !important;
+        background-attachment: fixed !important;
+    }
+    #header {
+        background: rgba(10, 43, 62, 0.95) !important;
+        border-bottom: 2px solid #f4a261 !important;
+    }
+    .module h2, .module caption {
+        background: #1e4a6e !important;
+    }
+    a:link, a:visited {
+        color: #1e4a6e !important;
+    }
+    .button, input[type=submit], input[type=button], .submit-row input {
+        background: #1e4a6e !important;
+        border-radius: 8px !important;
+    }
+    .button:hover, input[type=submit]:hover {
+        background: #f4a261 !important;
+    }
+    #branding h1 a {
+        color: #f4a261 !important;
+        font-size: 1.8rem !important;
+    }
+    .dashboard .module table th {
+        background: #1e4a6e !important;
+        color: white !important;
+    }
+</style>
+{% endblock %}
+
+{% block branding %}
+<h1 id="site-name"><a href="{% url 'admin:index' %}">🏠 ДомСервис — Управляющая компания</a></h1>
+{% endblock %}
