@@ -105,3 +105,13 @@ LOGOUT_REDIRECT_URL = 'home'
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 STATIC_ROOT = BASE_DIR / 'staticfiles'
+
+# --- Создание суперпользователя (добавлена проверка на готовность БД) ---
+try:
+    from django.contrib.auth.models import User
+    if not User.objects.filter(username='admin').exists():
+        User.objects.create_superuser('admin', 'admin@example.com', 'admin123')
+        print("Superuser created successfully.")
+except Exception as e:
+    # База данных ещё не готова (миграции не накатились), просто игнорируем ошибку
+    print(f"Could not create superuser: {e}")
