@@ -1,0 +1,190 @@
+{% extends 'base.html' %}
+{% block title %}Оплата{% endblock %}
+{% block content %}
+<div class="container mt-4">
+    <div class="row justify-content-center">
+        <div class="col-md-6">
+            <div class="card">
+                <div class="card-header bg-primary text-white">
+                    <i class="fas fa-credit-card"></i> Оплата услуг
+                </div>
+                <div class="card-body">
+                    <form method="post" id="paymentForm">
+                        {% csrf_token %}
+                        
+                        <!-- Скрытые поля -->
+                        <input type="hidden" name="amount" value="{{ amount }}">
+                        <input type="hidden" name="month" value="{{ month }}">
+                        
+                        <div class="alert alert-info">
+                            <i class="fas fa-info-circle"></i> Демо-режим: оплата не списывает реальные средства.
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label class="form-label">Месяц начисления</label>
+                            <input type="text" class="form-control" value="{{ month }}" readonly style="background-color: #e9ecef;">
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label class="form-label">Сумма к оплате</label>
+                            <input type="text" class="form-control" id="amountDisplay" value="{{ amount }} ₽" readonly style="background-color: #e9ecef; font-size: 1.2rem; font-weight: bold;">
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label class="form-label">Номер карты</label>
+                            <input type="text" class="form-control" id="cardNumber" placeholder="0000 0000 0000 0000" maxlength="19" oninput="formatCardNumber(this)">
+                            <small class="text-muted">16 цифр, разделенных пробелами</small>
+                        </div>
+                        
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label">Срок действия</label>
+                                <input type="text" class="form-control" id="expiry" placeholder="ММ/ГГ" maxlength="5" oninput="formatExpiry(this)">
+                                <small class="text-muted">Формат: ММ/ГГ</small>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label">CVV</label>
+                                <input type="password" class="form-control" id="cvv" placeholder="***" maxlength="3" oninput="this.value = this.value.replace(/[^0-9]/g, '')">
+                                <small class="text-muted">3 цифры на обратной стороне карты</small>
+                            </div>
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label class="form-label">Имя держателя карты</label>
+                            <input type="text" class="form-control" id="cardholder" placeholder="IVAN IVANOV" maxlength="50" oninput="this.value = this.value.toUpperCase().replace(/[^A-Z\s]/g, '')">
+                            <small class="text-muted">Только латинские буквы</small>
+                        </div>
+                        
+                        <div class="mb-4">
+                            <label class="form-label d-block">Скачать квитанцию?</label>
+                            <div class="btn-group w-100" role="group">
+                                <input type="radio" class="btn-check" name="download_receipt" id="receiptYes" value="yes" autocomplete="off" checked>
+                                <label class="btn btn-outline-primary" for="receiptYes">Да, скачать квитанцию</label>
+                                
+                                <input type="radio" class="btn-check" name="download_receipt" id="receiptNo" value="no" autocomplete="off">
+                                <label class="btn btn-outline-secondary" for="receiptNo">Нет, только оплата</label>
+                            </div>
+                        </div>
+                        
+                        <button type="submit" class="btn btn-primary w-100" onclick="return validateForm()">
+                            <i class="fas fa-credit-card"></i> Оплатить {{ amount }} руб.
+                        </button>
+                    </form>
+                    <hr>
+                    <p class="text-center mb-0">
+                        <a href="{% url 'payments' %}">← Вернуться к платежам</a>
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Модальное окно успешной оплаты -->
+<div class="modal fade" id="successModal" tabindex="-1" data-bs-backdrop="static">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header bg-success text-white">
+                <h5 class="modal-title"><i class="fas fa-check-circle"></i> Оплата успешно прошла!</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body text-center">
+                <i class="fas fa-check-circle fa-4x text-success mb-3"></i>
+                <h4>Спасибо за оплату!</h4>
+                <p>Ваш платеж за <strong id="successMonth"></strong> на сумму <strong id="successAmount"></strong> успешно проведен.</p>
+                <p class="text-muted">Квитанция будет отправлена на ваш email.</p>
+            </div>
+            <div class="modal-footer">
+                <a href="{% url 'payments' %}" class="btn btn-primary">Вернуться к платежам</a>
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Закрыть</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    function formatCardNumber(input) {
+        let value = input.value.replace(/\s/g, '').replace(/[^0-9]/g, '');
+        if (value.length > 16) value = value.slice(0, 16);
+        let formatted = '';
+        for (let i = 0; i < value.length; i++) {
+            if (i > 0 && i % 4 === 0) formatted += ' ';
+            formatted += value[i];
+        }
+        input.value = formatted;
+    }
+    
+    function formatExpiry(input) {
+        let value = input.value.replace(/[^0-9]/g, '');
+        if (value.length > 4) value = value.slice(0, 4);
+        if (value.length > 2) {
+            let month = value.slice(0, 2);
+            let year = value.slice(2, 4);
+            if (parseInt(month) > 12) month = '12';
+            if (parseInt(month) < 1 && month !== '') month = '01';
+            input.value = month + '/' + year;
+        } else {
+            input.value = value;
+        }
+    }
+    
+    function validateForm() {
+        const cardNumber = document.getElementById('cardNumber').value.replace(/\s/g, '');
+        const expiry = document.getElementById('expiry').value;
+        const cvv = document.getElementById('cvv').value;
+        const cardholder = document.getElementById('cardholder').value;
+        const amount = document.getElementById('amountDisplay').value;
+        const month = document.querySelector('input[name="month"]').value;
+        
+        if (cardNumber.length !== 16) {
+            alert('Номер карты должен содержать 16 цифр');
+            return false;
+        }
+        
+        if (expiry.length !== 5 || !expiry.includes('/')) {
+            alert('Срок действия должен быть в формате ММ/ГГ');
+            return false;
+        }
+        
+        const monthVal = parseInt(expiry.split('/')[0]);
+        const yearVal = parseInt(expiry.split('/')[1]);
+        const currentYear = new Date().getFullYear() % 100;
+        const currentMonth = new Date().getMonth() + 1;
+        
+        if (monthVal < 1 || monthVal > 12) {
+            alert('Месяц должен быть от 01 до 12');
+            return false;
+        }
+        
+        if (yearVal < currentYear || (yearVal === currentYear && monthVal < currentMonth)) {
+            alert('Срок действия карты истек');
+            return false;
+        }
+        
+        if (cvv.length !== 3) {
+            alert('CVV должен содержать 3 цифры');
+            return false;
+        }
+        
+        if (cardholder.length < 3) {
+            alert('Введите имя держателя карты');
+            return false;
+        }
+        
+        // Показываем модальное окно вместо алерта
+        document.getElementById('successMonth').textContent = month;
+        document.getElementById('successAmount').textContent = amount;
+        
+        // Создаем и показываем модальное окно
+        var successModal = new bootstrap.Modal(document.getElementById('successModal'));
+        successModal.show();
+        
+        // Отправляем форму после показа модального окна
+        setTimeout(() => {
+            document.getElementById('paymentForm').submit();
+        }, 1500);
+        
+        return false;
+    }
+</script>
+{% endblock %}

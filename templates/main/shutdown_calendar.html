@@ -1,0 +1,92 @@
+{% extends 'base.html' %}
+{% block title %}График отключений{% endblock %}
+{% block content %}
+<div class="container mt-4">
+    <h2 class="mb-4"><i class="fas fa-calendar-alt"></i> График плановых отключений</h2>
+    
+    <div class="alert alert-info">
+        <i class="fas fa-info-circle"></i> Информация о плановых отключениях коммунальных услуг. Даты могут меняться.
+    </div>
+    
+    <!-- Текущие отключения -->
+    {% if current %}
+        <div class="alert alert-danger mb-4">
+            <h5><i class="fas fa-exclamation-triangle"></i> Идут отключения</h5>
+            {% for item in current %}
+                <div class="mb-2">
+                    <strong>{{ item.get_service_type_display }}</strong>
+                    <span class="badge bg-danger ms-2">до {{ item.end_date|date:"d.m.Y H:i" }}</span>
+                    <p class="mb-0 small">{{ item.description }}</p>
+                </div>
+            {% endfor %}
+        </div>
+    {% endif %}
+    
+    <div class="row">
+        <div class="col-md-6">
+            <div class="card mb-4">
+                <div class="card-header bg-primary text-white">
+                    <i class="fas fa-clock"></i> Предстоящие отключения
+                </div>
+                <div class="card-body">
+                    {% if upcoming %}
+                        {% for item in upcoming %}
+                            <div class="border-bottom mb-3 pb-3">
+                                <div class="d-flex justify-content-between">
+                                    <strong>{{ item.get_service_type_display }}</strong>
+                                    <span class="badge bg-warning text-dark">
+                                        {{ item.start_date|date:"d.m.Y" }} - {{ item.end_date|date:"d.m.Y" }}
+                                    </span>
+                                </div>
+                                <p class="mb-0 small text-muted">{{ item.address|default:"Весь дом" }}</p>
+                                <p class="mb-0 small mt-1">{{ item.description }}</p>
+                            </div>
+                        {% endfor %}
+                    {% else %}
+                        <p class="text-muted text-center">Нет предстоящих отключений</p>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-md-6">
+            <div class="card mb-4">
+                <div class="card-header bg-secondary text-white">
+                    <i class="fas fa-history"></i> Прошедшие отключения
+                </div>
+                <div class="card-body">
+                    {% if past %}
+                        {% for item in past %}
+                            <div class="border-bottom mb-3 pb-3">
+                                <div class="d-flex justify-content-between">
+                                    <strong>{{ item.get_service_type_display }}</strong>
+                                    <span class="badge bg-secondary">
+                                        {{ item.start_date|date:"d.m.Y" }} - {{ item.end_date|date:"d.m.Y" }}
+                                    </span>
+                                </div>
+                                <p class="mb-0 small">{{ item.description }}</p>
+                            </div>
+                        {% endfor %}
+                    {% else %}
+                        <p class="text-muted text-center">Нет данных</p>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="card mt-3">
+        <div class="card-header bg-primary text-white">
+            <i class="fas fa-question-circle"></i> Что делать при отключении?
+        </div>
+        <div class="card-body">
+            <ul>
+                <li>Проверьте информацию на нашем сайте или в личном кабинете</li>
+                <li>При длительном отключении (более 24 часов) обратитесь в диспетчерскую службу</li>
+                <li>Запаситесь водой и зарядите устройства заранее</li>
+                <li>Следите за обновлениями в разделе "Новости"</li>
+            </ul>
+        </div>
+    </div>
+</div>
+{% endblock %}
