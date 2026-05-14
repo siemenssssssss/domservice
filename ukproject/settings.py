@@ -7,27 +7,26 @@ SECRET_KEY = os.environ.get('SECRET_KEY', 'django-insecure-eq%*zgbi*x29ou*v9u9t7
 
 DEBUG = os.environ.get('DEBUG', 'True') == 'True'
 
-# РАЗРЕШЁННЫЕ ХОСТЫ ДЛЯ RAILWAY
+# РАЗРЕШЁННЫЕ ХОСТЫ
 ALLOWED_HOSTS = [
-    'domservice-production.up.railway.app',
-    'domservice.up.railway.app',
+    'domserv.space',
+    'www.domserv.space',
     'localhost',
     '127.0.0.1',
 ]
 
 # ДОВЕРЕННЫЕ ОРИГИНЫ ДЛЯ CSRF
 CSRF_TRUSTED_ORIGINS = [
-    'https://domservice-production.up.railway.app',
-    'https://domservice.up.railway.app',
-    'https://*.railway.app',
+    'https://domserv.space',
+    'http://domserv.space',
 ]
 
-CSRF_COOKIE_SECURE = True
+CSRF_COOKIE_SECURE = False
 CSRF_COOKIE_HTTPONLY = False
 CSRF_USE_SESSIONS = False
 CSRF_COOKIE_SAMESITE = 'Lax'
 
-SESSION_COOKIE_SECURE = True
+SESSION_COOKIE_SECURE = False
 SESSION_COOKIE_SAMESITE = 'Lax'
 
 INSTALLED_APPS = [
@@ -73,10 +72,15 @@ TEMPLATES = [
 
 WSGI_APPLICATION = 'ukproject.wsgi.application'
 
+# НАСТРОЙКИ БАЗЫ ДАННЫХ MYSQL (для Reg.ru)
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db.sqlite3',
+        'ENGINE': 'django.db.backends.mysql',
+        'NAME': 'u3515142_domservice_db',          # ИМЯ БАЗЫ (создай в панели)
+        'USER': 'u3515142_domServ',                # ПОЛЬЗОВАТЕЛЬ БАЗЫ
+        'PASSWORD': 'Amirtb2005%',                 # ПАРОЛЬ
+        'HOST': 'localhost',
+        'PORT': '3306',
     }
 }
 
@@ -92,8 +96,9 @@ TIME_ZONE = 'Europe/Moscow'
 USE_I18N = True
 USE_TZ = True
 
-STATIC_URL = 'static/'
+STATIC_URL = '/static/'
 STATICFILES_DIRS = [BASE_DIR / 'static']
+STATIC_ROOT = BASE_DIR / 'staticfiles'
 
 MEDIA_URL = '/media/'
 MEDIA_ROOT = BASE_DIR / 'media'
@@ -103,15 +108,3 @@ LOGIN_REDIRECT_URL = 'home'
 LOGOUT_REDIRECT_URL = 'home'
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
-
-STATIC_ROOT = BASE_DIR / 'staticfiles'
-
-# --- Создание суперпользователя (добавлена проверка на готовность БД) ---
-try:
-    from django.contrib.auth.models import User
-    if not User.objects.filter(username='admin').exists():
-        User.objects.create_superuser('admin', 'admin@example.com', 'admin123')
-        print("Superuser created successfully.")
-except Exception as e:
-    # База данных ещё не готова (миграции не накатились), просто игнорируем ошибку
-    print(f"Could not create superuser: {e}")
