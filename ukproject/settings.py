@@ -15,10 +15,11 @@ ALLOWED_HOSTS = [
     '127.0.0.1',
 ]
 
-# ДОВЕРЕННЫЕ ОРИГИНЫ ДЛЯ CSRF (ОБЯЗАТЕЛЬНО ДЛЯ RAILWAY)
+# ДОВЕРЕННЫЕ ОРИГИНЫ ДЛЯ CSRF (С WILDCARD ДЛЯ ВСЕХ ПОДДОМЕНОВ RAILWAY)
 CSRF_TRUSTED_ORIGINS = [
     'https://domservice-production.up.railway.app',
     'https://domservice.up.railway.app',
+    'https://*.railway.app',
 ]
 
 CSRF_COOKIE_SECURE = True
@@ -104,3 +105,8 @@ LOGOUT_REDIRECT_URL = 'home'
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 STATIC_ROOT = BASE_DIR / 'staticfiles'
+
+# ПРИНУДИТЕЛЬНОЕ СОЗДАНИЕ СУПЕРПОЛЬЗОВАТЕЛЯ ПРИ ЗАПУСКЕ
+from django.contrib.auth.models import User
+if not User.objects.filter(username='admin').exists():
+    User.objects.create_superuser('admin', 'admin@example.com', 'admin123')
