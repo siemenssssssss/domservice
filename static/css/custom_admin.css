@@ -1,5 +1,4 @@
-/* custom_admin.css - стили для админки в стиле основного сайта ДомСервис */
-
+/* Админка в стиле главной страницы ДомСервис */
 body {
     background: linear-gradient(135deg, #0a2b3e 0%, #1e4a6e 100%) !important;
     background-attachment: fixed !important;
@@ -7,38 +6,34 @@ body {
 
 #header {
     background: rgba(10, 43, 62, 0.95) !important;
-    border-bottom: 2px solid #f4a261 !important;
-}
-
-.module h2, 
-.module caption {
-    background: #1e4a6e !important;
-    color: white !important;
-}
-
-a:link, a:visited {
-    color: #1e4a6e !important;
-}
-
-.button,
-input[type=submit],
-input[type=button],
-.submit-row input {
-    background: #1e4a6e !important;
-    border-radius: 8px !important;
-    transition: all 0.3s ease;
-}
-
-.button:hover,
-input[type=submit]:hover {
-    background: #f4a261 !important;
-    transform: translateY(-2px);
+    border-bottom: 3px solid #f4a261 !important;
 }
 
 #branding h1 a {
     color: #f4a261 !important;
     font-size: 1.8rem !important;
-    text-decoration: none;
+    font-weight: bold !important;
+    text-decoration: none !important;
+}
+
+.module h2, .module caption {
+    background: #1e4a6e !important;
+    color: white !important;
+}
+
+.button, input[type=submit], input[type=button], .submit-row input {
+    background: #1e4a6e !important;
+    border-radius: 8px !important;
+    transition: all 0.3s ease !important;
+}
+
+.button:hover, input[type=submit]:hover {
+    background: #f4a261 !important;
+    transform: translateY(-2px) !important;
+}
+
+a:link, a:visited {
+    color: #1e4a6e !important;
 }
 
 .dashboard .module table th {
@@ -46,17 +41,6 @@ input[type=submit]:hover {
     color: white !important;
 }
 
-.nav-sidebar .nav-link.active {
-    background: #1e4a6e !important;
-    border-left-color: #f4a261 !important;
-}
-
-.card-header {
-    background: #1e4a6e !important;
-    color: white !important;
-}
-
-/* Кнопки действий */
 .object-tools .addlink {
     background-color: #1e4a6e !important;
     border-radius: 8px !important;
@@ -66,24 +50,7 @@ input[type=submit]:hover {
     background-color: #f4a261 !important;
 }
 
-/* Формы */
-.alinextensible p,
-.aligned label {
-    color: #333 !important;
-}
-
-/* Пагинация */
-.paginator a:link,
-.paginator a:visited {
-    color: #1e4a6e !important;
-}
-
-.paginator .this-page {
-    background: #1e4a6e !important;
-    color: white !important;
-}
-
-/* Сообщения */
+/* Сообщения об успехе/ошибке */
 .messagelist li.success {
     background-color: #d4edda !important;
     border-left-color: #28a745 !important;
@@ -92,4 +59,14 @@ input[type=submit]:hover {
 .messagelist li.error {
     background-color: #f8d7da !important;
     border-left-color: #dc3545 !important;
+}
+
+/* Пагинация */
+.paginator a:link, .paginator a:visited {
+    color: #1e4a6e !important;
+}
+
+.paginator .this-page {
+    background: #1e4a6e !important;
+    color: white !important;
 }
