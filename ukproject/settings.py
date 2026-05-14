@@ -30,6 +30,7 @@ SESSION_COOKIE_SECURE = False
 SESSION_COOKIE_SAMESITE = 'Lax'
 
 INSTALLED_APPS = [
+    'unfold',
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
@@ -108,3 +109,16 @@ LOGIN_REDIRECT_URL = 'home'
 LOGOUT_REDIRECT_URL = 'home'
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+
+# НАСТРОЙКИ ДЛЯ ТЕМЫ UNFOLD
+UNFOLD = {
+    "SITE_TITLE": "ДомСервис",
+    "SITE_HEADER": "Управляющая компания",
+    "SITE_ICON": None,
+    "SHOW_HISTORY": True,
+    "SHOW_VIEW_LINK": True,
+    "COLORS": {
+        "primary": "#1e4a6e",
+        "secondary": "#2c6e9e",
+    },
+}
