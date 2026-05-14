@@ -28,7 +28,7 @@ SESSION_COOKIE_SECURE = False
 SESSION_COOKIE_SAMESITE = 'Lax'
 
 INSTALLED_APPS = [
-    'unfold',
+    'jazzmin',
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
@@ -107,16 +107,28 @@ LOGOUT_REDIRECT_URL = 'home'
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
-# НАСТРОЙКИ ДЛЯ ТЕМЫ UNFOLD (БЕЗ ОШИБОК)
-UNFOLD = {
-    "SITE_TITLE": "ДомСервис",
-    "SITE_HEADER": "Управляющая компания",
-    "SITE_ICON": None,
-    "SHOW_HISTORY": True,
-    "SHOW_VIEW_LINK": True,
-    "TABS": [],
-    "SIDEBAR": {
-        "show_search": True,
-        "show_all_applications": True,
+# ========== НАСТРОЙКИ ДЛЯ КРАСИВОЙ АДМИНКИ JAZZMIN ==========
+JAZZMIN_SETTINGS = {
+    "site_title": "ДомСервис",
+    "site_header": "ДомСервис",
+    "site_brand": "УК ДомСервис",
+    "welcome_sign": "Добро пожаловать в панель управления",
+    "copyright": "ДомСервис",
+    "show_sidebar": True,
+    "navigation_expanded": True,
+    "icons": {
+        "auth": "fas fa-users-cog",
+        "auth.user": "fas fa-user",
+        "auth.Group": "fas fa-users",
+        "main.Profile": "fas fa-id-card",
+        "main.News": "fas fa-newspaper",
+        "main.Service": "fas fa-tools",
+        "main.Request": "fas fa-clipboard-list",
+        "main.Payment": "fas fa-credit-card",
+        "main.Employee": "fas fa-user-tie",
+        "main.HouseInfo": "fas fa-building",
+        "main.ShutdownSchedule": "fas fa-calendar-alt",
+        "main.Document": "fas fa-file-alt",
+        "main.MeterReading": "fas fa-tachometer-alt",
     },
 }
