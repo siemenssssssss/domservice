@@ -84,3 +84,11 @@ LOGOUT_REDIRECT_URL = 'home'
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 STATIC_ROOT = BASE_DIR / 'staticfiles'
+
+# ========== ДОБАВЛЕННЫЕ СТРОКИ ДЛЯ RENDER ==========
+CSRF_TRUSTED_ORIGINS = [
+    'https://domservice.onrender.com',
+    'https://*.onrender.com',
+]
+
+SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
