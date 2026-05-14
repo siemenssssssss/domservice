@@ -76,9 +76,9 @@ WSGI_APPLICATION = 'ukproject.wsgi.application'
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.mysql',
-        'NAME': 'u3515142_domservice_db',          # ИМЯ БАЗЫ (создай в панели)
-        'USER': 'u3515142_domServ',                # ПОЛЬЗОВАТЕЛЬ БАЗЫ
-        'PASSWORD': 'Amirtb2005%',                 # ПАРОЛЬ
+        'NAME': 'u3515142_domservice_db',
+        'USER': 'u3515142_domServ',
+        'PASSWORD': 'Amirtb2005%',
         'HOST': 'localhost',
         'PORT': '3306',
     }
