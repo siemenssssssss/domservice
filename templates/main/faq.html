@@ -1,0 +1,143 @@
+{% extends 'base.html' %}
+{% block title %}Часто задаваемые вопросы{% endblock %}
+{% block content %}
+<div class="container mt-4">
+    <h2 class="mb-4"><i class="fas fa-question-circle"></i> Часто задаваемые вопросы</h2>
+    
+    <div class="accordion" id="faqAccordion">
+        <div class="accordion-item">
+            <h2 class="accordion-header">
+                <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#faq1">
+                    📊 Как передать показания счетчиков?
+                </button>
+            </h2>
+            <div id="faq1" class="accordion-collapse collapse show" data-bs-parent="#faqAccordion">
+                <div class="accordion-body">
+                    Передать показания можно в личном кабинете в разделе "Показания". Введите значения по каждому счетчику и нажмите "Отправить". Показания принимаются до 25 числа каждого месяца.
+                </div>
+            </div>
+        </div>
+        
+        <div class="accordion-item">
+            <h2 class="accordion-header">
+                <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#faq2">
+                    💳 Как оплатить услуги ЖКХ онлайн?
+                </button>
+            </h2>
+            <div id="faq2" class="accordion-collapse collapse" data-bs-parent="#faqAccordion">
+                <div class="accordion-body">
+                    Оплатить можно в разделе "Платежи". Выберите неоплаченный месяц, нажмите "Оплатить" и введите данные карты. После оплаты статус изменится на "Оплачено". Система работает в демо-режиме.
+                </div>
+            </div>
+        </div>
+        
+        <div class="accordion-item">
+            <h2 class="accordion-header">
+                <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#faq3">
+                    📋 Как оставить заявку в диспетчерскую службу?
+                </button>
+            </h2>
+            <div id="faq3" class="accordion-collapse collapse" data-bs-parent="#faqAccordion">
+                <div class="accordion-body">
+                    Перейдите в раздел "Заявки", нажмите "Новая заявка", выберите категорию проблемы, опишите подробно ситуацию и приложите фото (по желанию). После отправки вы получите уведомление.
+                </div>
+            </div>
+        </div>
+        
+        <div class="accordion-item">
+            <h2 class="accordion-header">
+                <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#faq4">
+                    ⚠️ Как узнать свою задолженность?
+                </button>
+            </h2>
+            <div id="faq4" class="accordion-collapse collapse" data-bs-parent="#faqAccordion">
+                <div class="accordion-body">
+                    Задолженность отображается в личном кабинете в блоке "Задолженность" и в разделе "Платежи". Также вы получите уведомление о наличии задолженности. При оплате задолженность автоматически обнулится.
+                </div>
+            </div>
+        </div>
+        
+        <div class="accordion-item">
+            <h2 class="accordion-header">
+                <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#faq5">
+                    💰 Где найти тарифы на услуги?
+                </button>
+            </h2>
+            <div id="faq5" class="accordion-collapse collapse" data-bs-parent="#faqAccordion">
+                <div class="accordion-body">
+                    Актуальные тарифы на услуги ЖКХ доступны в разделе "Услуги". Там указаны цены за единицу измерения (кВт/ч, м³, Гкал). Тарифы утверждаются ежегодно.
+                </div>
+            </div>
+        </div>
+        
+        <div class="accordion-item">
+            <h2 class="accordion-header">
+                <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#faq6">
+                    🚨 Как работает аварийная служба?
+                </button>
+            </h2>
+            <div id="faq6" class="accordion-collapse collapse" data-bs-parent="#faqAccordion">
+                <div class="accordion-body">
+                    Аварийная служба работает круглосуточно. Телефон: <strong>+7 (495) 987-65-43</strong>. Звоните при авариях: затопление, отсутствие света, отопления, засоры канализации. Выезд специалиста осуществляется в течение 2 часов.
+                </div>
+            </div>
+        </div>
+        
+        <div class="accordion-item">
+            <h2 class="accordion-header">
+                <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#faq7">
+                    📝 Как зарегистрироваться в системе?
+                </button>
+            </h2>
+            <div id="faq7" class="accordion-collapse collapse" data-bs-parent="#faqAccordion">
+                <div class="accordion-body">
+                    Нажмите кнопку "Регистрация" в правом верхнем углу. Введите имя, фамилию, email, номер квартиры, телефон и придумайте пароль. После регистрации вы получите доступ к личному кабинету.
+                </div>
+            </div>
+        </div>
+        
+        <div class="accordion-item">
+            <h2 class="accordion-header">
+                <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#faq8">
+                    📄 Где найти документы УК?
+                </button>
+            </h2>
+            <div id="faq8" class="accordion-collapse collapse" data-bs-parent="#faqAccordion">
+                <div class="accordion-body">
+                    Все документы (протоколы собраний, акты выполненных работ, тарифы, регламенты) доступны в разделе "Документы". Документы можно скачать в формате PDF.
+                </div>
+            </div>
+        </div>
+        
+        <div class="accordion-item">
+            <h2 class="accordion-header">
+                <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#faq9">
+                    🏠 Где найти информацию о доме?
+                </button>
+            </h2>
+            <div id="faq9" class="accordion-collapse collapse" data-bs-parent="#faqAccordion">
+                <div class="accordion-body">
+                    Информация о доме (год постройки, количество этажей, квартир, управляющая компания) доступна в разделе "О доме".
+                </div>
+            </div>
+        </div>
+        
+        <div class="accordion-item">
+            <h2 class="accordion-header">
+                <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#faq10">
+                    🕐 Какие часы работы УК?
+                </button>
+            </h2>
+            <div id="faq10" class="accordion-collapse collapse" data-bs-parent="#faqAccordion">
+                <div class="accordion-body">
+                    <strong>Режим работы:</strong><br>
+                    Понедельник-Пятница: 9:00 - 18:00<br>
+                    Суббота: 10:00 - 15:00<br>
+                    Воскресенье: выходной<br>
+                    <strong>Аварийная служба: круглосуточно</strong>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
