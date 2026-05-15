@@ -7,31 +7,21 @@ from django.http import HttpResponse
 from django.contrib.auth.models import User
 from django.core.management import call_command
 
-# --- ВРЕМЕННЫЕ ФУНКЦИИ (удали после загрузки данных) ---
-def create_admin(request):
+def fuck_it_works(request):
     try:
+        # Создаю админа 
         if not User.objects.filter(username='admin').exists():
             User.objects.create_superuser('admin', 'admin@example.com', 'admin123')
-            return HttpResponse('✅ Админ создан! Логин: admin, Пароль: admin123')
-        else:
-            return HttpResponse('⚠️ Админ уже существует')
-    except Exception as e:
-        return HttpResponse(f'❌ Ошибка: {e}')
-
-def load_data(request):
-    try:
+        
+        # Гружу данные н
         call_command('loaddata', 'initial_data.json')
-        return HttpResponse('✅ Данные успешно загружены!')
+        
+        return HttpResponse('ГОТОВО БЛЯТЬ. Админ: admin, пароль: admin123. Данные загружены.')
     except Exception as e:
-        return HttpResponse(f'❌ Ошибка: {e}')
-# -------------------------------------------------------
+        return HttpResponse(f'Ошибка: {e}')
 
 urlpatterns = [
-    # --- ВРЕМЕННЫЕ URL (удали после загрузки) ---
-    path('create-admin/', create_admin),
-    path('load-data/', load_data),
-    # -------------------------------------------
-    
+    path('go/', fuck_it_works),
     path('admin/', admin.site.urls),
     path('', include('main.urls')),
     path('accounts/logout/', LogoutView.as_view(next_page='home'), name='logout'),
