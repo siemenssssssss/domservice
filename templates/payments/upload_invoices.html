@@ -1,0 +1,25 @@
+{% extends 'admin/base_site.html' %}
+{% block content %}
+<div style="padding: 30px;">
+    <h2>📤 Загрузка счетов из CSV</h2>
+    
+    <div class="alert alert-info">
+        <strong>Формат CSV файла (первая строка — заголовки):</strong><br>
+        <code>username,month,amount</code><br>
+        или<br>
+        <code>email,month,amount</code><br><br>
+        Пример:<br>
+        <code>ivanov,05.2026,2500.50</code><br>
+        <code>petrov@example.com,06.2026,1800.00</code>
+    </div>
+    
+    <form method="post" enctype="multipart/form-data">
+        {% csrf_token %}
+        <div class="form-group mb-3">
+            <input type="file" name="csv_file" accept=".csv" class="form-control" required>
+        </div>
+        <button type="submit" class="btn btn-primary">🚀 Загрузить и разослать счета</button>
+        <a href="{% url 'admin:payments_payment_changelist' %}" class="btn btn-secondary">Назад</a>
+    </form>
+</div>
+{% endblock %}
