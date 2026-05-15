@@ -1,5 +1,6 @@
 import os
 from pathlib import Path
+import dj_database_url
 
 BASE_DIR = Path(__file__).resolve().parent.parent
 
@@ -7,7 +8,7 @@ SECRET_KEY = 'django-insecure-eq%*zgbi*x29ou*v9u9t7*b!082r#&g4*)2)x1dti2%tkp36k3
 
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ['*']  # 👈 ИСПРАВИЛ
 
 INSTALLED_APPS = [
     'django.contrib.admin',
@@ -52,11 +53,12 @@ TEMPLATES = [
 
 WSGI_APPLICATION = 'ukproject.wsgi.application'
 
+# 👇 ИСПРАВИЛ — теперь PostgreSQL (если есть DATABASE_URL) или SQLite
 DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db.sqlite3',
-    }
+    'default': dj_database_url.config(
+        default='sqlite:///db.sqlite3',
+        conn_max_age=600
+    )
 }
 
 AUTH_PASSWORD_VALIDATORS = [
@@ -82,3 +84,6 @@ LOGIN_REDIRECT_URL = 'home'
 LOGOUT_REDIRECT_URL = 'home'
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+
+# 👇 ДОБАВЬ ЭТО ДЛЯ RENDER
+CSRF_TRUSTED_ORIGINS = ['https://domservice.onrender.com', 'https://*.onrender.com']
