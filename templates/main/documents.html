@@ -16,9 +16,13 @@
                             <br>
                             <span class="badge bg-secondary">{{ doc.get_document_type_display }}</span>
                         </div>
-                        <a href="{{ doc.file.url }}" class="btn btn-sm btn-primary" download>
-                            <i class="fas fa-download"></i> Скачать
-                        </a>
+                        {% if doc.file %}
+                            <a href="{{ doc.file.url }}" class="btn btn-sm btn-primary" download>
+                                <i class="fas fa-download"></i> Скачать
+                            </a>
+                        {% else %}
+                            <span class="text-muted">Файл не загружен</span>
+                        {% endif %}
                     </div>
                 </div>
             </div>
