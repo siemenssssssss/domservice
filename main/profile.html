@@ -1,0 +1,16 @@
+{% extends 'base.html' %}
+{% block title %}Личный кабинет{% endblock %}
+{% block content %}
+<div class="container mt-4">
+    <h2>👤 Личный кабинет</h2>
+    <div class="card mt-3">
+        <div class="card-body">
+            <p><strong>ФИО:</strong> {{ user.get_full_name|default:"Не указано" }}</p>
+            <p><strong>Email:</strong> {{ user.email }}</p>
+            <p><strong>Квартира:</strong> {{ user.profile.apartment_number|default:"Не указана" }}</p>
+            <p><strong>Телефон:</strong> {{ user.profile.phone|default:"Не указан" }}</p>
+            <p><strong>Задолженность:</strong> {{ user.profile.total_debt }} ₽</p>
+        </div>
+    </div>
+</div>
+{% endblock %}
