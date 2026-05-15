@@ -173,7 +173,8 @@
       "end_date": "2026-05-20T18:00:00Z",
       "address": "",
       "description": "Плановые профилактические работы",
-      "is_active": true
+      "is_active": true,
+      "created_at": "2026-05-16T00:00:00Z"
     }
   },
   {
@@ -185,7 +186,8 @@
       "end_date": "2026-05-18T16:00:00Z",
       "address": "Орск, ул. Ленина, 10",
       "description": "Замена трансформатора",
-      "is_active": true
+      "is_active": true,
+      "created_at": "2026-05-16T00:00:00Z"
     }
   },
   {
