@@ -1,0 +1,10 @@
+{% extends "admin/change_list.html" %}
+
+{% block object-tools %}
+<div style="margin-bottom: 20px; display: flex; gap: 10px; padding: 10px; background: #f8f9fa; border-radius: 5px;">
+    <a href="export-xml/" class="button" style="background: #28a745; color: white; padding: 8px 15px; text-decoration: none; border-radius: 4px;">📤 Выгрузить всех жильцов с долгами (XML)</a>
+    <a href="import-xml/" class="button" style="background: #007bff; color: white; padding: 8px 15px; text-decoration: none; border-radius: 4px;">📥 Загрузить XML и выставить счета</a>
+    <a href="calculate-debts/" class="button" style="background: #ffc107; color: black; padding: 8px 15px; text-decoration: none; border-radius: 4px;">🧮 Рассчитать долги из показаний</a>
+</div>
+{{ block.super }}
+{% endblock %}

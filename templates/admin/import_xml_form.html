@@ -1,0 +1,17 @@
+{% extends "admin/base_site.html" %}
+{% block content %}
+<div style="padding: 30px;">
+    <h2 style="margin-bottom: 20px;">📥 Загрузить XML и выставить счета</h2>
+    <div style="background: #d1ecf1; padding: 15px; border-radius: 5px; margin-bottom: 20px;">
+        <strong>Формат XML:</strong> файл должен быть экспортирован через кнопку "Выгрузить всех жильцов с долгами"
+    </div>
+    <form method="post" enctype="multipart/form-data">
+        {% csrf_token %}
+        <div style="margin-bottom: 15px;">
+            <label style="display: block; margin-bottom: 5px;">Выберите XML файл:</label>
+            <input type="file" name="xml_file" accept=".xml" required style="padding: 5px;">
+        </div>
+        <button type="submit" style="background: #28a745; color: white; padding: 8px 20px; border: none; border-radius: 4px; cursor: pointer;">Загрузить и выставить счета</button>
+    </form>
+</div>
+{% endblock %}
