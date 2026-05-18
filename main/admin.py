@@ -1,12 +1,13 @@
 from django.contrib import admin
 from django.http import HttpResponse, HttpResponseRedirect
 from django.urls import path
-from django.template.response import TemplateResponse
+from django.shortcuts import render
 from django.contrib import messages
 import xml.etree.ElementTree as ET
 from django.contrib.auth.models import User
 from decimal import Decimal
 from django.db.models import Sum
+from django.utils.safestring import mark_safe
 
 from .models import (
     Profile, News, Service, MeterReading, Request, Payment,
@@ -16,7 +17,7 @@ from .models import (
 from .utils import create_notification
 
 
-def export_residents_xml(modeladmin, request, queryset):
+def export_residents_xml(modeladmin, request, queryset=None):
     users = User.objects.filter(is_superuser=False, is_staff=False)
     root = ET.Element('residents')
     
@@ -54,16 +55,9 @@ def export_residents_xml(modeladmin, request, queryset):
     response = HttpResponse(ET.tostring(root, encoding='utf-8', xml_declaration=True), content_type='application/xml')
     response['Content-Disposition'] = 'attachment; filename="residents_with_debts.xml"'
     return response
-export_residents_xml.short_description = "📤 Экспорт жильцов с долгами в XML"
 
 
-def import_residents_xml_page(modeladmin, request, queryset):
-    context = {'title': 'Загрузить XML и выставить счета', 'opts': modeladmin.model._meta}
-    return TemplateResponse(request, 'admin/import_residents_xml.html', context)
-import_residents_xml_page.short_description = "📥 Загрузить XML и выставить счета"
-
-
-def import_residents_xml(modeladmin, request):
+def import_residents_xml(request):
     if request.method == 'POST' and request.FILES.get('xml_file'):
         try:
             tree = ET.parse(request.FILES['xml_file'])
@@ -73,7 +67,8 @@ def import_residents_xml(modeladmin, request):
             
             for resident in root.findall('resident'):
                 try:
-                    user = User.objects.get(username=resident.find('username').text)
+                    username = resident.find('username').text
+                    user = User.objects.get(username=username)
                     payments_elem = resident.find('unpaid_payments')
                     if payments_elem is not None:
                         for payment_elem in payments_elem.findall('payment'):
@@ -92,11 +87,40 @@ def import_residents_xml(modeladmin, request):
             messages.success(request, f'✅ Создано {created_count} счетов. Ошибок: {error_count}')
         except Exception as e:
             messages.error(request, f'❌ Ошибка: {str(e)}')
-    return HttpResponseRedirect('../')
+        return HttpResponseRedirect('../')
+    
+    return render(request, 'admin/import_xml_form.html')
 
 
-# ========== РЕГИСТРАЦИЯ ВСЕХ МОДЕЛЕЙ ==========
+# ========== КАСТОМНЫЙ АДМИН С КНОПКАМИ ==========
 
+@admin.register(Payment)
+class PaymentAdmin(admin.ModelAdmin):
+    list_display = ['user', 'month', 'amount', 'is_paid', 'paid_at', 'action_buttons']
+    list_filter = ['is_paid', 'month']
+    list_editable = ['is_paid']
+    search_fields = ['user__username', 'user__email']
+    
+    def action_buttons(self, obj):
+        return mark_safe(f'''
+        <div style="display: flex; gap: 5px;">
+            <a href="/admin/main/payment/export-xml/" class="button" style="background: #28a745; color: white; padding: 5px 10px; text-decoration: none; border-radius: 4px;">📤 Экспорт</a>
+            <a href="/admin/main/payment/import-xml/" class="button" style="background: #007bff; color: white; padding: 5px 10px; text-decoration: none; border-radius: 4px;">📥 Импорт</a>
+        </div>
+        ''')
+    action_buttons.short_description = 'Действия'
+    action_buttons.allow_tags = True
+    
+    def get_urls(self):
+        urls = super().get_urls()
+        custom_urls = [
+            path('export-xml/', self.admin_site.admin_view(export_residents_xml), name='export_residents_xml'),
+            path('import-xml/', self.admin_site.admin_view(import_residents_xml), name='import_residents_xml'),
+        ]
+        return custom_urls + urls
+
+
+# Регистрация остальных моделей
 @admin.register(Profile)
 class ProfileAdmin(admin.ModelAdmin):
     list_display = ['user', 'apartment_number', 'phone']
@@ -117,20 +141,6 @@ class MeterReadingAdmin(admin.ModelAdmin):
 class RequestAdmin(admin.ModelAdmin):
     list_display = ['title', 'user', 'category', 'status', 'created_at']
     list_editable = ['status']
-
-@admin.register(Payment)
-class PaymentAdmin(admin.ModelAdmin):
-    list_display = ['user', 'month', 'amount', 'is_paid', 'paid_at']
-    list_filter = ['is_paid', 'month']
-    list_editable = ['is_paid']
-    actions = [export_residents_xml, import_residents_xml_page]
-    
-    def get_urls(self):
-        urls = super().get_urls()
-        custom_urls = [
-            path('import-residents-xml/', self.admin_site.admin_view(import_residents_xml), name='import_residents_xml'),
-        ]
-        return custom_urls + urls
 
 @admin.register(HouseInfo)
 class HouseInfoAdmin(admin.ModelAdmin):
