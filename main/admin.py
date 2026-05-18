@@ -18,7 +18,7 @@ from .utils import create_notification
 
 # ========== ФУНКЦИИ ЭКСПОРТА/ИМПОРТА ==========
 
-def export_residents_xml(modeladmin, request, queryset=None):
+def export_residents_xml(modeladmin, request, queryset):
     """Экспорт жильцов с долгами в XML"""
     users = User.objects.filter(is_superuser=False, is_staff=False)
     root = ET.Element('residents')
@@ -60,7 +60,7 @@ def export_residents_xml(modeladmin, request, queryset=None):
 export_residents_xml.short_description = "📤 Экспорт жильцов с долгами в XML"
 
 
-def import_residents_xml_page(modeladmin, request, queryset=None):
+def import_residents_xml_page(modeladmin, request, queryset):
     """Страница для загрузки XML"""
     context = {
         'title': 'Загрузить XML и выставить счета',
@@ -101,49 +101,40 @@ def import_residents_xml(modeladmin, request):
                                 )
                 except Exception as e:
                     error_count += 1
-                    print(f"Ошибка: {e}")
             
             messages.success(request, f'✅ Создано {created_count} счетов. Ошибок: {error_count}')
         except Exception as e:
-            messages.error(request, f'❌ Ошибка при обработке XML: {str(e)}')
+            messages.error(request, f'❌ Ошибка: {str(e)}')
     
     return HttpResponseRedirect('../')
 
 
-# ========== РЕГИСТРАЦИЯ МОДЕЛЕЙ В АДМИНКЕ ==========
+# ========== РЕГИСТРАЦИЯ МОДЕЛЕЙ ==========
 
 @admin.register(Profile)
 class ProfileAdmin(admin.ModelAdmin):
     list_display = ['user', 'apartment_number', 'phone', 'personal_account']
     search_fields = ['user__username', 'apartment_number']
 
-
 @admin.register(News)
 class NewsAdmin(admin.ModelAdmin):
     list_display = ['title', 'date_posted', 'is_important']
     list_filter = ['is_important', 'date_posted']
-    search_fields = ['title']
-
 
 @admin.register(Service)
 class ServiceAdmin(admin.ModelAdmin):
     list_display = ['name', 'unit', 'price']
 
-
 @admin.register(MeterReading)
 class MeterReadingAdmin(admin.ModelAdmin):
     list_display = ['user', 'service', 'value', 'month', 'date_submitted']
     list_filter = ['month', 'service']
-    search_fields = ['user__username']
-
 
 @admin.register(Request)
 class RequestAdmin(admin.ModelAdmin):
     list_display = ['title', 'user', 'category', 'status', 'created_at']
-    list_filter = ['status', 'category', 'created_at']
-    search_fields = ['title', 'user__username', 'description']
+    list_filter = ['status', 'category']
     list_editable = ['status']
-
 
 @admin.register(Payment)
 class PaymentAdmin(admin.ModelAdmin):
@@ -151,11 +142,8 @@ class PaymentAdmin(admin.ModelAdmin):
     list_filter = ['is_paid', 'month']
     search_fields = ['user__username', 'user__email']
     list_editable = ['is_paid']
-    
-    # 👇 ДОБАВЛЯЕМ ДЕЙСТВИЯ
     actions = [export_residents_xml, import_residents_xml_page]
     
-    # 👇 ДОБАВЛЯЕМ URL ДЛЯ ИМПОРТА
     def get_urls(self):
         urls = super().get_urls()
         custom_urls = [
@@ -163,44 +151,32 @@ class PaymentAdmin(admin.ModelAdmin):
         ]
         return custom_urls + urls
 
-
 @admin.register(HouseInfo)
 class HouseInfoAdmin(admin.ModelAdmin):
     list_display = ['address', 'year_built', 'floors', 'apartments']
-
 
 @admin.register(Document)
 class DocumentAdmin(admin.ModelAdmin):
     list_display = ['title', 'document_type', 'date_posted', 'is_public']
     list_filter = ['document_type', 'is_public']
 
-
 @admin.register(Notification)
 class NotificationAdmin(admin.ModelAdmin):
     list_display = ['user', 'message', 'is_read', 'created_at']
-    list_filter = ['is_read', 'created_at']
-    search_fields = ['user__username']
-
+    list_filter = ['is_read']
 
 @admin.register(RequestReview)
 class RequestReviewAdmin(admin.ModelAdmin):
     list_display = ['request', 'rating', 'created_at']
-    list_filter = ['rating']
-
 
 @admin.register(ShutdownSchedule)
 class ShutdownScheduleAdmin(admin.ModelAdmin):
     list_display = ['service_type', 'start_date', 'end_date', 'is_active']
-    list_filter = ['service_type', 'is_active']
-
 
 @admin.register(Employee)
 class EmployeeAdmin(admin.ModelAdmin):
-    list_display = ['name', 'position', 'rating', 'total_reviews', 'is_active']
-    list_filter = ['is_active', 'position']
-
+    list_display = ['name', 'position', 'rating', 'is_active']
 
 @admin.register(EmployeeReview)
 class EmployeeReviewAdmin(admin.ModelAdmin):
     list_display = ['employee', 'user', 'rating', 'created_at']
-    list_filter = ['rating']
