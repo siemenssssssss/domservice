@@ -13,7 +13,8 @@ from main.models import Payment, Profile
 from main.utils import create_notification
 
 
-# Расширяем существующий PaymentAdmin, а не создаем новый
+# ========== ФУНКЦИИ ЭКСПОРТА/ИМПОРТА ==========
+
 def export_residents_xml(modeladmin, request, queryset=None):
     """Экспорт жильцов с долгами в XML"""
     users = User.objects.filter(is_superuser=False, is_staff=False)
@@ -153,15 +154,15 @@ def import_residents_xml(modeladmin, request):
     return HttpResponseRedirect('../')
 
 
-# Добавляем actions в существующий PaymentAdmin через monkey patch
-# Находим уже зарегистрированный PaymentAdmin и добавляем в него действия
-from django.contrib.admin import site
-from main.admin import PaymentAdmin  # Импортируем существующий
+# ========== РАСШИРЯЕМ СУЩЕСТВУЮЩИЙ PaymentAdmin ==========
 
-if hasattr(PaymentAdmin, 'actions'):
-    PaymentAdmin.actions += [export_residents_xml, import_residents_xml_page]
-else:
-    PaymentAdmin.actions = [export_residents_xml, import_residents_xml_page]
+from django.contrib.admin import site
+from main.admin import PaymentAdmin
+
+# Конвертируем actions в список, добавляем, конвертируем обратно в кортеж
+current_actions = list(PaymentAdmin.actions) if PaymentAdmin.actions else []
+current_actions.extend([export_residents_xml, import_residents_xml_page])
+PaymentAdmin.actions = tuple(current_actions)
 
 # Добавляем URL для импорта
 original_get_urls = PaymentAdmin.get_urls
@@ -173,6 +174,6 @@ def get_urls_with_custom(self):
     return custom_urls + urls
 PaymentAdmin.get_urls = get_urls_with_custom
 
-# Перерегистрируем модель с обновленным админом
+# Перерегистрируем модель
 site.unregister(Payment)
 site.register(Payment, PaymentAdmin)
