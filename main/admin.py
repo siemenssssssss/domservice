@@ -16,10 +16,7 @@ from .models import (
 from .utils import create_notification
 
 
-# ========== ФУНКЦИИ ЭКСПОРТА/ИМПОРТА ==========
-
 def export_residents_xml(modeladmin, request, queryset):
-    """Экспорт жильцов с долгами в XML"""
     users = User.objects.filter(is_superuser=False, is_staff=False)
     root = ET.Element('residents')
     
@@ -61,17 +58,12 @@ export_residents_xml.short_description = "📤 Экспорт жильцов с 
 
 
 def import_residents_xml_page(modeladmin, request, queryset):
-    """Страница для загрузки XML"""
-    context = {
-        'title': 'Загрузить XML и выставить счета',
-        'opts': modeladmin.model._meta,
-    }
+    context = {'title': 'Загрузить XML и выставить счета', 'opts': modeladmin.model._meta}
     return TemplateResponse(request, 'admin/import_residents_xml.html', context)
 import_residents_xml_page.short_description = "📥 Загрузить XML и выставить счета"
 
 
 def import_residents_xml(modeladmin, request):
-    """Обработка загруженного XML"""
     if request.method == 'POST' and request.FILES.get('xml_file'):
         try:
             tree = ET.parse(request.FILES['xml_file'])
@@ -88,38 +80,30 @@ def import_residents_xml(modeladmin, request):
                             month = payment_elem.find('month').text
                             amount = Decimal(payment_elem.find('amount').text)
                             payment, created = Payment.objects.get_or_create(
-                                user=user,
-                                month=month,
+                                user=user, month=month,
                                 defaults={'amount': amount, 'is_paid': False, 'paid_at': None}
                             )
                             if created:
                                 created_count += 1
-                                create_notification(
-                                    user,
-                                    f'💰 Вам выставлен новый счет за {month} на сумму {amount} руб.',
-                                    '/payments/'
-                                )
-                except Exception as e:
+                                create_notification(user, f'💰 Новый счет за {month} на сумму {amount} руб.', '/payments/')
+                except:
                     error_count += 1
             
             messages.success(request, f'✅ Создано {created_count} счетов. Ошибок: {error_count}')
         except Exception as e:
             messages.error(request, f'❌ Ошибка: {str(e)}')
-    
     return HttpResponseRedirect('../')
 
 
-# ========== РЕГИСТРАЦИЯ МОДЕЛЕЙ ==========
+# ========== РЕГИСТРАЦИЯ ВСЕХ МОДЕЛЕЙ ==========
 
 @admin.register(Profile)
 class ProfileAdmin(admin.ModelAdmin):
-    list_display = ['user', 'apartment_number', 'phone', 'personal_account']
-    search_fields = ['user__username', 'apartment_number']
+    list_display = ['user', 'apartment_number', 'phone']
 
 @admin.register(News)
 class NewsAdmin(admin.ModelAdmin):
     list_display = ['title', 'date_posted', 'is_important']
-    list_filter = ['is_important', 'date_posted']
 
 @admin.register(Service)
 class ServiceAdmin(admin.ModelAdmin):
@@ -127,20 +111,17 @@ class ServiceAdmin(admin.ModelAdmin):
 
 @admin.register(MeterReading)
 class MeterReadingAdmin(admin.ModelAdmin):
-    list_display = ['user', 'service', 'value', 'month', 'date_submitted']
-    list_filter = ['month', 'service']
+    list_display = ['user', 'service', 'value', 'month']
 
 @admin.register(Request)
 class RequestAdmin(admin.ModelAdmin):
     list_display = ['title', 'user', 'category', 'status', 'created_at']
-    list_filter = ['status', 'category']
     list_editable = ['status']
 
 @admin.register(Payment)
 class PaymentAdmin(admin.ModelAdmin):
     list_display = ['user', 'month', 'amount', 'is_paid', 'paid_at']
     list_filter = ['is_paid', 'month']
-    search_fields = ['user__username', 'user__email']
     list_editable = ['is_paid']
     actions = [export_residents_xml, import_residents_xml_page]
     
@@ -153,17 +134,15 @@ class PaymentAdmin(admin.ModelAdmin):
 
 @admin.register(HouseInfo)
 class HouseInfoAdmin(admin.ModelAdmin):
-    list_display = ['address', 'year_built', 'floors', 'apartments']
+    list_display = ['address', 'year_built', 'floors']
 
 @admin.register(Document)
 class DocumentAdmin(admin.ModelAdmin):
-    list_display = ['title', 'document_type', 'date_posted', 'is_public']
-    list_filter = ['document_type', 'is_public']
+    list_display = ['title', 'document_type', 'date_posted']
 
 @admin.register(Notification)
 class NotificationAdmin(admin.ModelAdmin):
     list_display = ['user', 'message', 'is_read', 'created_at']
-    list_filter = ['is_read']
 
 @admin.register(RequestReview)
 class RequestReviewAdmin(admin.ModelAdmin):
@@ -171,12 +150,12 @@ class RequestReviewAdmin(admin.ModelAdmin):
 
 @admin.register(ShutdownSchedule)
 class ShutdownScheduleAdmin(admin.ModelAdmin):
-    list_display = ['service_type', 'start_date', 'end_date', 'is_active']
+    list_display = ['service_type', 'start_date', 'end_date']
 
 @admin.register(Employee)
 class EmployeeAdmin(admin.ModelAdmin):
-    list_display = ['name', 'position', 'rating', 'is_active']
+    list_display = ['name', 'position', 'rating']
 
 @admin.register(EmployeeReview)
 class EmployeeReviewAdmin(admin.ModelAdmin):
-    list_display = ['employee', 'user', 'rating', 'created_at']
+    list_display = ['employee', 'user', 'rating']
