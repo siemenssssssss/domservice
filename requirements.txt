@@ -4,5 +4,3 @@ Pillow
 reportlab
 mysqlclient
 pymysql
-dj-database-url
-psycopg2-binary
