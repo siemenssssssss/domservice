@@ -1,19 +1,26 @@
-# ========== НОВЫЙ ФУНКЦИОНАЛ ЭКСПОРТА/ИМПОРТА ЖИЛЬЦОВ ==========
-
+from django.contrib import admin
 from django.http import HttpResponse, HttpResponseRedirect
 from django.urls import path
 from django.template.response import TemplateResponse
 from django.contrib import messages
-from django.core.management import call_command
 import xml.etree.ElementTree as ET
 from django.contrib.auth.models import User
-from .models import Payment
 from decimal import Decimal
 from django.db.models import Sum
+
+# Импортируем модели из main.models (там где они реально лежат)
+from main.models import Payment, Profile
 from main.utils import create_notification
+
+
+# ========== НОВЫЙ ФУНКЦИОНАЛ ЭКСПОРТА/ИМПОРТА ЖИЛЬЦОВ ==========
 
 class PaymentAdminExtended(admin.ModelAdmin):
     """Расширенный класс админки с новыми действиями"""
+    
+    list_display = ['user', 'month', 'amount', 'is_paid', 'paid_at']
+    list_filter = ['is_paid', 'month']
+    search_fields = ['user__username', 'user__email']
     
     # Добавляем новые действия в список
     actions = ['export_residents_xml', 'import_residents_xml_page']
@@ -175,14 +182,7 @@ class PaymentAdminExtended(admin.ModelAdmin):
                 messages.error(request, f'❌ Ошибка при обработке XML: {str(e)}')
         
         return HttpResponseRedirect('../')
-    
-    # Переопределяем media для загрузки кастомного шаблона
-    class Media:
-        css = {
-            'all': ('admin/css/import-xml.css',)
-        }
 
-# Перерегистрируем Payment с расширенным админом
-# Сначала удаляем старую регистрацию, потом регистрируем новую
-admin.site.unregister(Payment)
+
+# Регистрируем модель Payment с расширенным админом
 admin.site.register(Payment, PaymentAdminExtended)
