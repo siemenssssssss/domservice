@@ -17,7 +17,8 @@ from .models import (
 from .utils import create_notification
 
 
-def export_residents_xml(modeladmin, request, queryset=None):
+def export_residents_xml(request):
+    """Экспорт всех жильцов с их долгами в XML"""
     users = User.objects.filter(is_superuser=False, is_staff=False)
     root = ET.Element('residents')
     
@@ -51,6 +52,7 @@ def export_residents_xml(modeladmin, request, queryset=None):
             p_elem = ET.SubElement(payments_elem, 'payment')
             ET.SubElement(p_elem, 'month').text = payment.month
             ET.SubElement(p_elem, 'amount').text = str(float(payment.amount))
+            ET.SubElement(p_elem, 'service_type').text = 'Коммунальные услуги'
     
     response = HttpResponse(ET.tostring(root, encoding='utf-8', xml_declaration=True), content_type='application/xml')
     response['Content-Disposition'] = 'attachment; filename="residents_with_debts.xml"'
@@ -58,6 +60,7 @@ def export_residents_xml(modeladmin, request, queryset=None):
 
 
 def import_residents_xml(request):
+    """Импорт XML и автоматическое создание платежей"""
     if request.method == 'POST' and request.FILES.get('xml_file'):
         try:
             tree = ET.parse(request.FILES['xml_file'])
@@ -70,18 +73,25 @@ def import_residents_xml(request):
                     username = resident.find('username').text
                     user = User.objects.get(username=username)
                     payments_elem = resident.find('unpaid_payments')
+                    
                     if payments_elem is not None:
                         for payment_elem in payments_elem.findall('payment'):
                             month = payment_elem.find('month').text
                             amount = Decimal(payment_elem.find('amount').text)
+                            
                             payment, created = Payment.objects.get_or_create(
                                 user=user, month=month,
                                 defaults={'amount': amount, 'is_paid': False, 'paid_at': None}
                             )
+                            
                             if created:
                                 created_count += 1
-                                create_notification(user, f'💰 Новый счет за {month} на сумму {amount} руб.', '/payments/')
-                except:
+                                create_notification(
+                                    user, 
+                                    f'💰 Выставлен счет за {month} на сумму {amount} руб.',
+                                    '/payments/'
+                                )
+                except Exception as e:
                     error_count += 1
             
             messages.success(request, f'✅ Создано {created_count} счетов. Ошибок: {error_count}')
@@ -92,35 +102,61 @@ def import_residents_xml(request):
     return render(request, 'admin/import_xml_form.html')
 
 
-# ========== КАСТОМНЫЙ АДМИН С КНОПКАМИ ==========
+def calculate_debts_from_readings(request):
+    """Автоматический расчет долгов из переданных показаний за текущий месяц"""
+    from datetime import datetime
+    current_month = datetime.now().strftime('%m.%Y')
+    readings = MeterReading.objects.filter(month=current_month)
+    created_count = 0
+    
+    for reading in readings:
+        amount = reading.value * float(reading.service.price)
+        payment, created = Payment.objects.get_or_create(
+            user=reading.user,
+            month=current_month,
+            defaults={'amount': amount, 'is_paid': False, 'paid_at': None}
+        )
+        if created:
+            created_count += 1
+            create_notification(
+                reading.user,
+                f'💰 Начислено за {current_month}: {amount:.2f} руб. (на основе показаний)',
+                '/payments/'
+            )
+    
+    messages.success(request, f'✅ Рассчитано и создано {created_count} платежей на основе показаний за {current_month}')
+    return HttpResponseRedirect('../')
 
-@admin.register(Payment)
+
+# ========== НАСТРОЙКИ АДМИНКИ С КНОПКАМИ СВЕРХУ ==========
+
 class PaymentAdmin(admin.ModelAdmin):
-    list_display = ['user', 'month', 'amount', 'is_paid', 'paid_at', 'action_buttons']
+    change_list_template = "admin/payments_change_list.html"
+    list_display = ['user', 'month', 'amount', 'is_paid', 'paid_at']
     list_filter = ['is_paid', 'month']
     list_editable = ['is_paid']
     search_fields = ['user__username', 'user__email']
-    
-    def action_buttons(self, obj):
-        return mark_safe(f'''
-        <div style="display: flex; gap: 5px;">
-            <a href="/admin/main/payment/export-xml/" class="button" style="background: #28a745; color: white; padding: 5px 10px; text-decoration: none; border-radius: 4px;">📤 Экспорт</a>
-            <a href="/admin/main/payment/import-xml/" class="button" style="background: #007bff; color: white; padding: 5px 10px; text-decoration: none; border-radius: 4px;">📥 Импорт</a>
-        </div>
-        ''')
-    action_buttons.short_description = 'Действия'
-    action_buttons.allow_tags = True
     
     def get_urls(self):
         urls = super().get_urls()
         custom_urls = [
             path('export-xml/', self.admin_site.admin_view(export_residents_xml), name='export_residents_xml'),
             path('import-xml/', self.admin_site.admin_view(import_residents_xml), name='import_residents_xml'),
+            path('calculate-debts/', self.admin_site.admin_view(calculate_debts_from_readings), name='calculate_debts'),
         ]
         return custom_urls + urls
+    
+    def changelist_view(self, request, extra_context=None):
+        extra_context = extra_context or {}
+        extra_context['export_url'] = 'export-xml/'
+        extra_context['import_url'] = 'import-xml/'
+        extra_context['calculate_url'] = 'calculate-debts/'
+        return super().changelist_view(request, extra_context=extra_context)
 
 
-# Регистрация остальных моделей
+# Регистрируем модели
+admin.site.register(Payment, PaymentAdmin)
+
 @admin.register(Profile)
 class ProfileAdmin(admin.ModelAdmin):
     list_display = ['user', 'apartment_number', 'phone']
