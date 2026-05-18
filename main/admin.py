@@ -1,100 +1,110 @@
-from django.contrib import admin
-from .models import (
-    Profile, News, Service, MeterReading, 
-    Request, Payment, HouseInfo, Document, 
-    Notification, RequestReview
-)
+# Добавь в начало файла (с другими импортами)
+from django.http import HttpResponse, HttpResponseRedirect
+from django.urls import path
+from django.template.response import TemplateResponse
+from django.contrib import messages
+import xml.etree.ElementTree as ET
+from django.contrib.auth.models import User
+from decimal import Decimal
+from django.db.models import Sum
+from main.utils import create_notification
 
 
-@admin.register(Profile)
-class ProfileAdmin(admin.ModelAdmin):
-    list_display = ['user', 'apartment_number', 'phone', 'personal_account']
-    list_filter = ['apartment_number']
-    search_fields = ['user__username', 'user__first_name', 'user__last_name', 'apartment_number']
-    readonly_fields = ['personal_account']
-    fields = ['user', 'apartment_number', 'phone', 'personal_account']
+# ========== ФУНКЦИИ ЭКСПОРТА/ИМПОРТА (добавь в PaymentAdmin) ==========
+
+def export_residents_xml(modeladmin, request, queryset=None):
+    users = User.objects.filter(is_superuser=False, is_staff=False)
+    root = ET.Element('residents')
+    
+    for user in users:
+        try:
+            profile = Profile.objects.get(user=user)
+            apartment = profile.apartment_number
+            phone = profile.phone
+            personal_account = profile.personal_account
+        except:
+            apartment = ''
+            phone = ''
+            personal_account = f'ЛС-{user.id:06d}'
+        
+        total_debt = Payment.objects.filter(user=user, is_paid=False).aggregate(total=Sum('amount'))['total'] or 0
+        unpaid_payments = Payment.objects.filter(user=user, is_paid=False)
+        
+        resident = ET.SubElement(root, 'resident', id=str(user.id))
+        ET.SubElement(resident, 'username').text = user.username
+        ET.SubElement(resident, 'first_name').text = user.first_name or ''
+        ET.SubElement(resident, 'last_name').text = user.last_name or ''
+        ET.SubElement(resident, 'email').text = user.email or ''
+        ET.SubElement(resident, 'apartment').text = apartment
+        ET.SubElement(resident, 'phone').text = phone
+        ET.SubElement(resident, 'personal_account').text = personal_account
+        ET.SubElement(resident, 'total_debt').text = str(float(total_debt))
+        ET.SubElement(resident, 'date_joined').text = user.date_joined.strftime('%Y-%m-%d')
+        
+        payments_elem = ET.SubElement(resident, 'unpaid_payments')
+        for payment in unpaid_payments:
+            p_elem = ET.SubElement(payments_elem, 'payment')
+            ET.SubElement(p_elem, 'month').text = payment.month
+            ET.SubElement(p_elem, 'amount').text = str(float(payment.amount))
+    
+    response = HttpResponse(ET.tostring(root, encoding='utf-8', xml_declaration=True), content_type='application/xml')
+    response['Content-Disposition'] = 'attachment; filename="residents_with_debts.xml"'
+    return response
+export_residents_xml.short_description = "📤 Экспорт жильцов с долгами в XML"
 
 
-@admin.register(News)
-class NewsAdmin(admin.ModelAdmin):
-    list_display = ['title', 'date_posted', 'is_important']
-    list_filter = ['is_important', 'date_posted']
-    search_fields = ['title', 'content']
-    date_hierarchy = 'date_posted'
-    fields = ['title', 'content', 'image', 'is_important']
+def import_residents_xml_page(modeladmin, request, queryset=None):
+    context = {'title': 'Загрузить XML и выставить счета', 'opts': modeladmin.model._meta}
+    return TemplateResponse(request, 'admin/import_residents_xml.html', context)
+import_residents_xml_page.short_description = "📥 Загрузить XML и выставить счета"
 
 
-@admin.register(Service)
-class ServiceAdmin(admin.ModelAdmin):
-    list_display = ['name', 'unit', 'price']
-    list_filter = ['unit']
-    search_fields = ['name']
-    fields = ['name', 'unit', 'price']
+def import_residents_xml(modeladmin, request):
+    if request.method == 'POST' and request.FILES.get('xml_file'):
+        try:
+            tree = ET.parse(request.FILES['xml_file'])
+            root = tree.getroot()
+            created_count = 0
+            error_count = 0
+            
+            for resident in root.findall('resident'):
+                try:
+                    user = User.objects.get(username=resident.find('username').text)
+                    for payment_elem in resident.find('unpaid_payments').findall('payment'):
+                        month = payment_elem.find('month').text
+                        amount = Decimal(payment_elem.find('amount').text)
+                        payment, created = Payment.objects.get_or_create(
+                            user=user, month=month,
+                            defaults={'amount': amount, 'is_paid': False, 'paid_at': None}
+                        )
+                        if created:
+                            created_count += 1
+                            create_notification(user, f'💰 Новый счет за {month} на сумму {amount} руб.', '/payments/')
+                except:
+                    error_count += 1
+            
+            messages.success(request, f'✅ Создано {created_count} счетов. Ошибок: {error_count}')
+        except Exception as e:
+            messages.error(request, f'❌ Ошибка: {str(e)}')
+    return HttpResponseRedirect('../')
 
 
-@admin.register(MeterReading)
-class MeterReadingAdmin(admin.ModelAdmin):
-    list_display = ['user', 'service', 'value', 'month', 'date_submitted']
-    list_filter = ['month', 'service']
-    search_fields = ['user__username', 'service__name']
-    date_hierarchy = 'date_submitted'
-    readonly_fields = ['date_submitted']
-    fields = ['user', 'service', 'value', 'month', 'date_submitted']
+# ========== ИЗМЕНИ СУЩЕСТВУЮЩИЙ PaymentAdmin ==========
+# Найди в этом файле класс PaymentAdmin и добавь в него:
 
-
-@admin.register(Request)
-class RequestAdmin(admin.ModelAdmin):
-    list_display = ['title', 'user', 'category', 'status', 'created_at']
-    list_filter = ['status', 'category', 'created_at']
-    search_fields = ['title', 'description', 'user__username']
-    list_editable = ['status']
-    date_hierarchy = 'created_at'
-    fields = ['user', 'category', 'title', 'description', 'photo', 'status', 'admin_comment', 'created_at']
-    readonly_fields = ['created_at']
-
-
-@admin.register(Payment)
 class PaymentAdmin(admin.ModelAdmin):
     list_display = ['user', 'month', 'amount', 'is_paid', 'paid_at']
-    list_filter = ['month', 'is_paid']
-    search_fields = ['user__username']
-    fields = ['user', 'month', 'amount', 'is_paid', 'paid_at']
-    readonly_fields = ['paid_at']
-
-
-@admin.register(HouseInfo)
-class HouseInfoAdmin(admin.ModelAdmin):
-    list_display = ['address', 'year_built', 'floors', 'apartments', 'phone']
-    search_fields = ['address', 'management_company']
-    fields = [
-        'address', 'year_built', 'floors', 'entrances', 
-        'apartments', 'total_area', 'management_company', 
-        'chief_engineer', 'phone', 'description'
-    ]
-
-
-@admin.register(Document)
-class DocumentAdmin(admin.ModelAdmin):
-    list_display = ['title', 'document_type', 'date_posted', 'is_public']
-    list_filter = ['document_type', 'is_public', 'date_posted']
-    search_fields = ['title', 'description']
-    date_hierarchy = 'date_posted'
-    fields = ['title', 'document_type', 'file', 'description', 'is_public']
-
-
-@admin.register(Notification)
-class NotificationAdmin(admin.ModelAdmin):
-    list_display = ['user', 'message', 'is_read', 'created_at']
-    list_filter = ['is_read', 'created_at']
-    search_fields = ['user__username', 'message']
-    readonly_fields = ['created_at']
-    fields = ['user', 'message', 'link', 'is_read', 'created_at']
-
-
-@admin.register(RequestReview)
-class RequestReviewAdmin(admin.ModelAdmin):
-    list_display = ['request', 'rating', 'created_at']
-    list_filter = ['rating', 'created_at']
-    search_fields = ['request__title', 'comment']
-    readonly_fields = ['created_at']
-    fields = ['request', 'rating', 'comment', 'created_at']
+    list_filter = ['is_paid', 'month']
+    search_fields = ['user__username', 'user__email']
+    
+    # 👇 ДОБАВЬ ЭТУ СТРОКУ
+    actions = [export_residents_xml, import_residents_xml_page]
+    
+    # 👇 ДОБАВЬ ЭТОТ МЕТОД (для страницы импорта)
+    def get_urls(self):
+        urls = super().get_urls()
+        custom_urls = [path('import-residents-xml/', self.import_residents_xml, name='import_residents_xml')]
+        return custom_urls + urls
+    
+    def import_residents_xml(self, request):
+        return import_residents_xml(self, request)
