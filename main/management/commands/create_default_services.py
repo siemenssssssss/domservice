@@ -26,8 +26,8 @@ class Command(BaseCommand):
             )
             if created:
                 created_count += 1
-                self.stdout.write(self.style.SUCCESS(f'✅ Создана услуга: {service.name} - {service.price} руб/{service.unit}'))
+                self.stdout.write(self.style.SUCCESS(f'✅ Создана услуга: {service.name}'))
             else:
                 existing_count += 1
         
-        self.stdout.write(self.style.SUCCESS(f'\n🎉 ИТОГО: создано {created_count} услуг, уже существовало {existing_count}'))
+        self.stdout.write(self.style.SUCCESS(f'\n🎉 Создано: {created_count}, уже было: {existing_count}'))
