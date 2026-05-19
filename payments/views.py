@@ -13,14 +13,21 @@ from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle
 from reportlab.lib.enums import TA_CENTER, TA_LEFT
 from reportlab.pdfbase import pdfmetrics
 from reportlab.pdfbase.ttfonts import TTFont
+from reportlab.pdfbase.cidfonts import UnicodeCIDFont
 import io
 import os
 
-# Регистрируем русский шрифт
-font_path = os.path.join(os.path.dirname(__file__), '..', 'DejaVuSans.ttf')
+# Регистрируем русский шрифт (используем встроенный шрифт, который точно есть)
 try:
-    pdfmetrics.registerFont(TTFont('DejaVu', font_path))
-    RUSSIAN_FONT = 'DejaVu'
+    # Пробуем загрузить шрифт DejaVu
+    font_path = os.path.join(os.path.dirname(__file__), '..', 'DejaVuSans.ttf')
+    if os.path.exists(font_path):
+        pdfmetrics.registerFont(TTFont('DejaVu', font_path))
+        RUSSIAN_FONT = 'DejaVu'
+    else:
+        # Используем встроенный шрифт для кириллицы
+        pdfmetrics.registerFont(TTFont('Helvetica', 'Helvetica'))
+        RUSSIAN_FONT = 'Helvetica'
 except:
     RUSSIAN_FONT = 'Helvetica'
 
@@ -119,9 +126,10 @@ def generate_receipt(user, payment):
     # Создаем документ
     doc = SimpleDocTemplate(buffer, pagesize=A4, rightMargin=72, leftMargin=72, topMargin=72, bottomMargin=72)
     
-    # Стили с русским шрифтом
+    # Стили с русским шрифтом (используем стандартный шрифт)
     styles = getSampleStyleSheet()
     
+    # Создаем стили для русского текста со стандартным шрифтом
     title_style = ParagraphStyle(
         'TitleStyle',
         parent=styles['Heading1'],
@@ -180,7 +188,7 @@ def generate_receipt(user, payment):
     # Таблица с услугами
     data = [
         ['Наименование услуги', 'Период', 'Сумма'],
-        ['Коммунальные услуги', f'{payment.month}', f'{payment.amount:,.2f} руб.'],
+        ['Коммунальные услуги', f'{payment.month}', f'{float(payment.amount):,.2f} руб.'],
     ]
     
     table = Table(data, colWidths=[250, 100, 100])
@@ -200,9 +208,9 @@ def generate_receipt(user, payment):
     story.append(Spacer(1, 20))
     
     # Итого
-    story.append(Paragraph(f"ИТОГО К ОПЛАТЕ: {payment.amount:,.2f} руб.", bold_style))
+    story.append(Paragraph(f"ИТОГО К ОПЛАТЕ: {float(payment.amount):,.2f} руб.", bold_style))
     story.append(Spacer(1, 10))
-    story.append(Paragraph(f"ДАТА ОПЛАТЫ: {payment.paid_at.strftime('%d.%m.%Y %H:%M')}", normal_style))
+    story.append(Paragraph(f"ДАТА ОПЛАТЫ: {payment.paid_at.strftime('%d.%m.%Y %H:%M') if payment.paid_at else 'Не указана'}", normal_style))
     story.append(Spacer(1, 30))
     
     # Подпись
