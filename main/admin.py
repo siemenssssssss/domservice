@@ -18,7 +18,7 @@ from .utils import create_notification
 
 
 def export_residents_xml(request):
-    """Экспорт всех жильцов с их показаниями и долгами в XML"""
+    """Экспорт всех жильцов с их показаниями и долгами в XML (русская кодировка)"""
     users = User.objects.filter(is_superuser=False, is_staff=False)
     root = ET.Element('residents')
     
@@ -65,7 +65,11 @@ def export_residents_xml(request):
             ET.SubElement(p_elem, 'month').text = payment.month
             ET.SubElement(p_elem, 'amount').text = str(float(payment.amount))
     
-    response = HttpResponse(ET.tostring(root, encoding='utf-8', xml_declaration=True), content_type='application/xml')
+    # Формируем XML строку с правильной кодировкой
+    xml_str = ET.tostring(root, encoding='utf-8', xml_declaration=True)
+    
+    # Отправляем ответ с указанием кодировки
+    response = HttpResponse(xml_str, content_type='application/xml; charset=utf-8')
     response['Content-Disposition'] = 'attachment; filename="residents_with_debts.xml"'
     return response
 
@@ -74,7 +78,9 @@ def import_residents_xml(request):
     """Импорт XML и автоматическое создание платежей"""
     if request.method == 'POST' and request.FILES.get('xml_file'):
         try:
-            tree = ET.parse(request.FILES['xml_file'])
+            # Читаем файл с правильной кодировкой
+            xml_file = request.FILES['xml_file']
+            tree = ET.parse(xml_file)
             root = tree.getroot()
             created_count = 0
             error_count = 0
