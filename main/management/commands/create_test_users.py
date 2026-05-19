@@ -1,11 +1,10 @@
 from django.core.management.base import BaseCommand
 from django.contrib.auth.models import User
-from main.models import Profile, Service, MeterReading, Payment
+from main.models import Profile, Service, MeterReading
 from datetime import datetime
-from decimal import Decimal
 
 class Command(BaseCommand):
-    help = 'Создает 5 тестовых жильцов с показаниями и долгами'
+    help = 'Создает 5 тестовых жильцов с показаниями (без платежей)'
 
     def handle(self, *args, **kwargs):
         current_month = datetime.now().strftime('%m.%Y')
@@ -65,10 +64,8 @@ class Command(BaseCommand):
         
         created_count = 0
         reading_count = 0
-        payment_count = 0
         
         for data in users_data:
-            # Создаем пользователя
             user, created = User.objects.get_or_create(
                 username=data['username'],
                 defaults={
@@ -83,7 +80,6 @@ class Command(BaseCommand):
                 user.save()
                 created_count += 1
                 
-                # Создаем профиль
                 Profile.objects.create(
                     user=user,
                     apartment_number=data['apartment'],
@@ -91,33 +87,19 @@ class Command(BaseCommand):
                     personal_account=f'ЛС-{user.id:05d}'
                 )
                 
-                # Создаем показания и платежи
                 for service_name, value in data['readings'].items():
                     try:
                         service = Service.objects.get(name=service_name)
-                        
-                        # Показание
-                        reading = MeterReading.objects.create(
+                        MeterReading.objects.create(
                             user=user,
                             service=service,
                             value=value,
                             month=current_month
                         )
                         reading_count += 1
-                        
-                        # Платеж
-                        amount = value * float(service.price)
-                        payment, p_created = Payment.objects.get_or_create(
-                            user=user,
-                            month=current_month,
-                            defaults={'amount': amount, 'is_paid': False}
-                        )
-                        if p_created:
-                            payment_count += 1
-                            
                     except Service.DoesNotExist:
-                        self.stdout.write(self.style.WARNING(f'Услуга "{service_name}" не найдена, создайте ее сначала'))
+                        self.stdout.write(self.style.WARNING(f'Услуга "{service_name}" не найдена'))
                 
-                self.stdout.write(self.style.SUCCESS(f'✅ Создан жилец: {data["username"]} - кв.{data["apartment"]}'))
+                self.stdout.write(self.style.SUCCESS(f'✅ Создан жилец: {data["username"]}'))
         
-        self.stdout.write(self.style.SUCCESS(f'\n🎉 ИТОГО: Создано {created_count} жильцов, {reading_count} показаний, {payment_count} платежей'))
+        self.stdout.write(self.style.SUCCESS(f'\n🎉 Создано {created_count} жильцов, {reading_count} показаний'))
