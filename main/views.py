@@ -65,11 +65,9 @@ def employees_rating(request):
     return render(request, 'main/employees_rating.html', {'employees': employees})
 
 def statistics(request):
-    # ========== СТАТИСТИКА ПО ЗАЯВКАМ ==========
     total_requests = Request.objects.count()
     completed_requests = Request.objects.filter(status='completed').count()
     
-    # Статистика по категориям заявок
     categories = Request.objects.values('category').annotate(count=Count('id'))
     
     if total_requests == 0:
@@ -84,7 +82,6 @@ def statistics(request):
         categories_labels = ['Другие']
         categories_data = [total_requests]
     
-    # ========== СТАТИСТИКА ПО ПЛАТЕЖАМ ==========
     payments_by_month = Payment.objects.filter(is_paid=True).values('month').annotate(
         total=Sum('amount')
     )
@@ -125,45 +122,20 @@ def statistics(request):
     }
     return render(request, 'main/statistics.html', context)
 
-# ========== СТРАНИЦА ОТЗЫВОВ ==========
-
 def reviews_list(request):
-    """Страница со всеми отзывами"""
-    # Берём все реальные отзывы
     real_reviews = RequestReview.objects.select_related('request', 'request__user').all().order_by('-created_at')
     
-    # Демо-отзывы для наполнения (20 штук)
     demo_reviews = [
         {'name': 'Иван Петров', 'rating': 5, 'comment': 'Отличная работа! Сантехник приехал быстро, всё исправил за 15 минут. Спасибо!', 'date': '15.03.2026'},
-        {'name': 'Мария Иванова', 'rating': 4, 'comment': 'Хорошо, но пришлось ждать мастера 3 часа. В остальном всё качественно.', 'date': '12.03.2026'},
-        {'name': 'Сергей Козлов', 'rating': 5, 'comment': 'Профессионально, быстро, вежливо. Рекомендую!', 'date': '10.03.2026'},
-        {'name': 'Елена Смирнова', 'rating': 5, 'comment': 'Спасибо за оперативность! Лифт починили на следующий день после заявки.', 'date': '05.03.2026'},
-        {'name': 'Андрей Морозов', 'rating': 4, 'comment': 'Хороший сервис, но цены немного завышены.', 'date': '01.03.2026'},
-        {'name': 'Ольга Новикова', 'rating': 5, 'comment': 'Всё отлично! Буду обращаться ещё.', 'date': '25.02.2026'},
-        {'name': 'Сергей Козлов', 'rating': 5, 'comment': 'Профессионально, быстро, вежливо. Рекомендую!', 'date': '10.03.2026'},
-        {'name': 'Елена Смирнова', 'rating': 5, 'comment': 'Спасибо за оперативность! Лифт починили на следующий день после заявки.', 'date': '05.03.2026'},
-        {'name': 'Андрей Морозов', 'rating': 4, 'comment': 'Хороший сервис, но цены немного завышены.', 'date': '01.03.2026'},
-        {'name': 'Ольга Новикова', 'rating': 5, 'comment': 'Всё отлично! Буду обращаться ещё.', 'date': '25.02.2026'},
-        {'name': 'Дмитрий Волков', 'rating': 3, 'comment': 'Нормально, но могли бы и побыстрее приехать.', 'date': '20.02.2026'},
-        {'name': 'Татьяна Кузнецова', 'rating': 5, 'comment': 'Очень довольна работой мастера! Спасибо УК "ДомСервис"!', 'date': '15.02.2026'},
-        {'name': 'Павел Соколов', 'rating': 4, 'comment': 'Хорошо, но не хватило подробного объяснения проблемы.', 'date': '10.02.2026'},
-        {'name': 'Анна Попова', 'rating': 5, 'comment': 'Лучшая УК в городе! Все заявки выполняются быстро.', 'date': '05.02.2026'},
-        {'name': 'Виктор Лебедев', 'rating': 4, 'comment': 'Хорошо, но в следующий раз хотелось бы побыстрее.', 'date': '01.02.2026'},
-        {'name': 'Наталья Егорова', 'rating': 5, 'comment': 'Спасибо большое! Проблему решили за один день.', 'date': '25.01.2026'},
-        {'name': 'Максим Титов', 'rating': 5, 'comment': 'Отличная работа! Мастер вежливый, всё объяснил.', 'date': '20.01.2026'},
-        {'name': 'Юлия Фёдорова', 'rating': 4, 'comment': 'Хорошо, но пришлось ждать.', 'date': '15.01.2026'},
-        {'name': 'Артём Захаров', 'rating': 5, 'comment': 'Всё супер! Спасибо!', 'date': '10.01.2026'},
-        {'name': 'Ксения Григорьева', 'rating': 5, 'comment': 'Отличный сервис, рекомендую всем соседям!', 'date': '05.01.2026'},
-        {'name': 'Игорь Михайлов', 'rating': 4, 'comment': 'Нормально, но можно и быстрее.', 'date': '01.01.2026'},
-        {'name': 'Вера Андреева', 'rating': 5, 'comment': 'Спасибо за чистоту и порядок в подъезде!', 'date': '25.12.2025'},
-        {'name': 'Николай Крылов', 'rating': 5, 'comment': 'Лучшая УК, смена была правильным решением!', 'date': '20.12.2025'},
-        {'name': 'Лариса Семёнова', 'rating': 4, 'comment': 'Хорошо, спасибо.', 'date': '15.12.2025'},
+        {'name': 'Мария Иванова', 'rating': 4, 'comment': 'Хорошо, но пришлось ждать мастера 3 часа.', 'date': '12.03.2026'},
+        {'name': 'Сергей Козлов', 'rating': 5, 'comment': 'Профессионально, быстро, вежливо.', 'date': '10.03.2026'},
+        {'name': 'Елена Смирнова', 'rating': 5, 'comment': 'Спасибо за оперативность!', 'date': '05.03.2026'},
+        {'name': 'Андрей Морозов', 'rating': 4, 'comment': 'Хороший сервис', 'date': '01.03.2026'},
+        {'name': 'Ольга Новикова', 'rating': 5, 'comment': 'Всё отлично!', 'date': '25.02.2026'},
     ]
     
-    # Формируем список всех отзывов
     all_reviews = []
     
-    # Добавляем реальные отзывы
     for review in real_reviews:
         all_reviews.append({
             'name': review.request.user.get_full_name() or review.request.user.username,
@@ -172,14 +144,9 @@ def reviews_list(request):
             'date': review.created_at.strftime('%d.%m.%Y'),
         })
     
-    # Добавляем демо-отзывы
     all_reviews.extend(demo_reviews)
-    
-    # Ограничиваем до 20 (или больше, если реальных много)
-    # Для статистики берём все, для отображения ограничим
     display_reviews = all_reviews[:30]
     
-    # Вычисляем средний рейтинг
     if all_reviews:
         total_rating = sum(r['rating'] for r in all_reviews)
         avg_rating = total_rating / len(all_reviews)
@@ -217,7 +184,7 @@ def dashboard(request):
     }
     return render(request, 'main/dashboard.html', context)
 
-# ========== ИСПРАВЛЕННАЯ ФУНКЦИЯ ПЕРЕДАЧИ ПОКАЗАНИЙ С АВТОРАСЧЕТОМ ==========
+# ========== ИСПРАВЛЕННАЯ ФУНКЦИЯ ПЕРЕДАЧИ ПОКАЗАНИЙ (БЕЗ АВТОРАСЧЕТА) ==========
 
 @login_required
 def readings(request):
@@ -233,35 +200,8 @@ def readings(request):
             reading.month = current_month
             reading.save()
             
-            # ========== АВТОМАТИЧЕСКИЙ РАСЧЕТ ПЛАТЕЖА ==========
-            # Рассчитываем сумму: показание × тариф услуги
-            amount = reading.value * float(reading.service.price)
-            
-            # Создаем платеж за текущий месяц
-            payment, created = Payment.objects.get_or_create(
-                user=user,
-                month=current_month,
-                defaults={
-                    'amount': amount,
-                    'is_paid': False,
-                    'paid_at': None
-                }
-            )
-            
-            # Если платеж уже был, обновляем сумму
-            if not created and payment.amount != amount:
-                payment.amount = amount
-                payment.save()
-            
-            # Отправляем уведомление жильцу
-            create_notification(
-                user,
-                f'💰 Начислено за {current_month}: {amount:.2f} руб. за {reading.service.name}',
-                '/payments/'
-            )
-            # ========== КОНЕЦ АВТОРАСЧЕТА ==========
-            
-            messages.success(request, f'Показания переданы! Начислено {amount:.2f} руб. за {reading.service.name}')
+            # ТОЛЬКО СОХРАНЯЕМ ПОКАЗАНИЯ, БЕЗ СОЗДАНИЯ ПЛАТЕЖА
+            messages.success(request, f'Показания переданы! Долг будет рассчитан администратором.')
             return redirect('readings')
     else:
         form = MeterReadingForm(user=user)
@@ -289,7 +229,7 @@ def requests_list(request):
             
             create_notification(
                 request.user,
-                f'📋 Ваша заявка "{req.title}" принята. Мы свяжемся с вами в ближайшее время.',
+                f'📋 Ваша заявка "{req.title}" принята.',
                 f'/requests/{req.id}/'
             )
             
@@ -308,7 +248,6 @@ def request_detail(request, pk):
 
 @login_required
 def add_request_review(request, pk):
-    """Добавить отзыв на выполненную заявку"""
     req = get_object_or_404(Request, pk=pk, user=request.user)
     
     if req.status != 'completed':
@@ -331,7 +270,7 @@ def add_request_review(request, pk):
             )
             messages.success(request, 'Спасибо за отзыв!')
         else:
-            messages.error(request, 'Пожалуйста, поставьте оценку от 1 до 5')
+            messages.error(request, 'Оценка от 1 до 5')
         
         return redirect('request_detail', pk=pk)
     
@@ -410,7 +349,7 @@ def add_employee_review(request, employee_id):
             ).exists()
             
             if existing:
-                messages.error(request, 'Вы уже оставляли отзыв на этого сотрудника сегодня')
+                messages.error(request, 'Вы уже оставляли отзыв сегодня')
             else:
                 EmployeeReview.objects.create(
                     employee=employee,
@@ -420,7 +359,7 @@ def add_employee_review(request, employee_id):
                 )
                 messages.success(request, f'Спасибо за отзыв о {employee.name}!')
         else:
-            messages.error(request, 'Пожалуйста, поставьте оценку от 1 до 5')
+            messages.error(request, 'Оценка от 1 до 5')
         
         return redirect('employees_rating')
     
