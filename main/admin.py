@@ -18,7 +18,7 @@ from .utils import create_notification
 
 
 def export_residents_xml(request):
-    """Экспорт всех жильцов с их долгами в XML"""
+    """Экспорт всех жильцов с их показаниями и долгами в XML"""
     users = User.objects.filter(is_superuser=False, is_staff=False)
     root = ET.Element('residents')
     
@@ -36,6 +36,9 @@ def export_residents_xml(request):
         total_debt = Payment.objects.filter(user=user, is_paid=False).aggregate(total=Sum('amount'))['total'] or 0
         unpaid_payments = Payment.objects.filter(user=user, is_paid=False)
         
+        # Получаем показания пользователя
+        readings = MeterReading.objects.filter(user=user).order_by('-month')
+        
         resident = ET.SubElement(root, 'resident', id=str(user.id))
         ET.SubElement(resident, 'username').text = user.username
         ET.SubElement(resident, 'first_name').text = user.first_name or ''
@@ -47,12 +50,20 @@ def export_residents_xml(request):
         ET.SubElement(resident, 'total_debt').text = str(float(total_debt))
         ET.SubElement(resident, 'date_joined').text = user.date_joined.strftime('%Y-%m-%d')
         
+        # Добавляем показания в XML
+        readings_elem = ET.SubElement(resident, 'meter_readings')
+        for reading in readings:
+            r_elem = ET.SubElement(readings_elem, 'reading')
+            ET.SubElement(r_elem, 'service').text = reading.service.name
+            ET.SubElement(r_elem, 'value').text = str(reading.value)
+            ET.SubElement(r_elem, 'month').text = reading.month
+        
+        # Добавляем неоплаченные платежи
         payments_elem = ET.SubElement(resident, 'unpaid_payments')
         for payment in unpaid_payments:
             p_elem = ET.SubElement(payments_elem, 'payment')
             ET.SubElement(p_elem, 'month').text = payment.month
             ET.SubElement(p_elem, 'amount').text = str(float(payment.amount))
-            ET.SubElement(p_elem, 'service_type').text = 'Коммунальные услуги'
     
     response = HttpResponse(ET.tostring(root, encoding='utf-8', xml_declaration=True), content_type='application/xml')
     response['Content-Disposition'] = 'attachment; filename="residents_with_debts.xml"'
@@ -72,8 +83,8 @@ def import_residents_xml(request):
                 try:
                     username = resident.find('username').text
                     user = User.objects.get(username=username)
-                    payments_elem = resident.find('unpaid_payments')
                     
+                    payments_elem = resident.find('unpaid_payments')
                     if payments_elem is not None:
                         for payment_elem in payments_elem.findall('payment'):
                             month = payment_elem.find('month').text
@@ -91,10 +102,19 @@ def import_residents_xml(request):
                                     f'💰 Выставлен счет за {month} на сумму {amount} руб.',
                                     '/payments/'
                                 )
+                            else:
+                                if payment.amount != amount:
+                                    payment.amount = amount
+                                    payment.save()
+                                    create_notification(
+                                        user,
+                                        f'💰 Обновлен счет за {month} на сумму {amount} руб.',
+                                        '/payments/'
+                                    )
                 except Exception as e:
                     error_count += 1
             
-            messages.success(request, f'✅ Создано {created_count} счетов. Ошибок: {error_count}')
+            messages.success(request, f'✅ Создано/обновлено {created_count} счетов. Ошибок: {error_count}')
         except Exception as e:
             messages.error(request, f'❌ Ошибка: {str(e)}')
         return HttpResponseRedirect('../')
@@ -108,6 +128,7 @@ def calculate_debts_from_readings(request):
     current_month = datetime.now().strftime('%m.%Y')
     readings = MeterReading.objects.filter(month=current_month)
     created_count = 0
+    updated_count = 0
     
     for reading in readings:
         amount = reading.value * float(reading.service.price)
@@ -118,13 +139,13 @@ def calculate_debts_from_readings(request):
         )
         if created:
             created_count += 1
-            create_notification(
-                reading.user,
-                f'💰 Начислено за {current_month}: {amount:.2f} руб. (на основе показаний)',
-                '/payments/'
-            )
+        else:
+            if payment.amount != amount:
+                payment.amount = amount
+                payment.save()
+                updated_count += 1
     
-    messages.success(request, f'✅ Рассчитано и создано {created_count} платежей на основе показаний за {current_month}')
+    messages.success(request, f'✅ Рассчитано: создано {created_count} платежей, обновлено {updated_count}')
     return HttpResponseRedirect('../')
 
 
