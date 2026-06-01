@@ -12,6 +12,10 @@
                     <form method="post">
                         {% csrf_token %}
                         
+                        <!-- Скрытые поля для каптчи -->
+                        {{ form.captcha_num1 }}
+                        {{ form.captcha_num2 }}
+                        
                         <div class="mb-3">
                             <label class="form-label">Имя пользователя</label>
                             <input type="text" name="username" class="form-control" required>
