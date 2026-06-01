@@ -10,7 +10,8 @@ class Profile(models.Model):
     apartment_number = models.CharField(max_length=10, verbose_name='Номер квартиры')
     phone = models.CharField(max_length=20, verbose_name='Телефон')
     personal_account = models.CharField(max_length=20, blank=True, verbose_name='Лицевой счет')
-    
+    house = models.ForeignKey('HouseInfo', on_delete=models.SET_NULL, null=True, blank=True, verbose_name='Дом')
+
     def __str__(self):
         return f"{self.user.get_full_name()} - кв.{self.apartment_number}"
     
