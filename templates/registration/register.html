@@ -47,7 +47,7 @@
                             <label class="form-label">Выберите дом</label>
                             <select name="house" class="form-control" required>
                                 <option value="">---------</option>
-                                {% for house in form.fields.house.queryset %}
+                                {% for house in houses %}
                                     <option value="{{ house.id }}">{{ house.address }}</option>
                                 {% endfor %}
                             </select>
