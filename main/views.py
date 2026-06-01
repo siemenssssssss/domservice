@@ -33,8 +33,16 @@ def news_detail(request, pk):
     news_item = get_object_or_404(News, pk=pk)
     return render(request, 'main/news_detail.html', {'news': news_item})
 
+@login_required
 def house_info(request):
-    house = HouseInfo.objects.first()
+    try:
+        house = request.user.profile.house
+    except:
+        house = None
+    
+    if house is None:
+        messages.warning(request, 'Информация о доме не добавлена. Обратитесь к администратору.')
+    
     return render(request, 'main/house_info.html', {'house': house})
 
 def documents_list(request):
@@ -200,7 +208,6 @@ def readings(request):
             reading.month = current_month
             reading.save()
             
-            # ТОЛЬКО СОХРАНЯЕМ ПОКАЗАНИЯ, БЕЗ СОЗДАНИЯ ПЛАТЕЖА
             messages.success(request, f'Показания переданы! Долг будет рассчитан администратором.')
             return redirect('readings')
     else:
