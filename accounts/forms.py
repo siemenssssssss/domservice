@@ -18,8 +18,8 @@ class UserRegisterForm(UserCreationForm):
     )
     
     # Скрытые поля для хранения чисел каптчи
-    captcha_num1 = forms.IntegerField(widget=forms.HiddenInput())
-    captcha_num2 = forms.IntegerField(widget=forms.HiddenInput())
+    captcha_num1 = forms.IntegerField(widget=forms.HiddenInput(), required=False)
+    captcha_num2 = forms.IntegerField(widget=forms.HiddenInput(), required=False)
     
     # Поле для ответа
     captcha_answer = forms.IntegerField(
@@ -43,15 +43,24 @@ class UserRegisterForm(UserCreationForm):
             self.initial['captcha_num2'] = num2
             self.fields['captcha_answer'].label = f'{num1} + {num2} = ?'
         else:
-            # При отправке используем числа из скрытых полей
-            num1 = int(self.data.get('captcha_num1', 0))
-            num2 = int(self.data.get('captcha_num2', 0))
-            self.fields['captcha_answer'].label = f'{num1} + {num2} = ?'
+            # При отправке используем числа из данных, если они есть
+            num1 = self.data.get('captcha_num1')
+            num2 = self.data.get('captcha_num2')
+            if num1 is not None and num2 is not None:
+                self.fields['captcha_answer'].label = f'{int(num1)} + {int(num2)} = ?'
     
     def clean_captcha_answer(self):
         answer = self.cleaned_data.get('captcha_answer')
         num1 = self.cleaned_data.get('captcha_num1')
         num2 = self.cleaned_data.get('captcha_num2')
+        
+        # Если скрытые поля не пришли, пытаемся взять их из self.initial
+        if num1 is None or num2 is None:
+            num1 = self.initial.get('captcha_num1')
+            num2 = self.initial.get('captcha_num2')
+        
+        if num1 is None or num2 is None:
+            raise forms.ValidationError('Ошибка каптчи. Попробуйте обновить страницу.')
         
         if answer != num1 + num2:
             raise forms.ValidationError('Неверный ответ. Попробуйте ещё раз.')
