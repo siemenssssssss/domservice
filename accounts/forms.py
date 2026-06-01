@@ -17,7 +17,6 @@ class UserRegisterForm(UserCreationForm):
         empty_label='---------'
     )
     
-    # Каптча с рандомными числами
     captcha_answer = forms.IntegerField(
         label='Проверка',
         required=True,
