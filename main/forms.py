@@ -9,7 +9,7 @@ class MeterReadingForm(forms.ModelForm):
         fields = ['service', 'value']
         widgets = {
             'service': forms.Select(attrs={'class': 'form-control'}),
-            'value': forms.NumberInput(attrs={'class': 'form-control', 'step': '0.01'}),
+            'value': forms.NumberInput(attrs={'class': 'form-control', 'step': '0.01', 'placeholder': 'Введите показание'}),
         }
     
     def __init__(self, *args, **kwargs):
@@ -22,6 +22,10 @@ class MeterReadingForm(forms.ModelForm):
                 user=self.user, month=current_month
             ).values_list('service_id', flat=True)
             self.fields['service'].queryset = self.fields['service'].queryset.exclude(id__in=existing_services)
+        
+        # Добавляем атрибут data-unit для каждой услуги
+        self.fields['service'].widget.attrs.update({'id': 'service-select'})
+        self.fields['value'].widget.attrs.update({'id': 'reading-value'})
 
 class RequestForm(forms.ModelForm):
     class Meta:
