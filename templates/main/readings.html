@@ -19,7 +19,25 @@
                 <div class="card-body">
                     <form method="post">
                         {% csrf_token %}
-                        {{ form.as_p }}
+                        
+                        <div class="mb-3">
+                            <label class="form-label">Услуга</label>
+                            <select name="service" class="form-control" id="service-select" required>
+                                <option value="">---------</option>
+                                {% for service in form.fields.service.queryset %}
+                                    <option value="{{ service.id }}" data-unit="{{ service.unit }}">
+                                        {{ service.name }} ({{ service.unit }})
+                                    </option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label class="form-label">Показание</label>
+                            <input type="number" name="value" class="form-control" step="0.01" id="reading-value" required>
+                            <small class="text-muted" id="unit-hint">Выберите услугу</small>
+                        </div>
+                        
                         <button type="submit" class="btn btn-primary">Отправить показания</button>
                     </form>
                 </div>
@@ -45,8 +63,8 @@
                                 <tbody>
                                     {% for reading in readings_history %}
                                     <tr>
-                                        <td>{{ reading.service.name }}</td>
-                                        <td>{{ reading.value }}</td>
+                                        <td>{{ reading.service.name }} ({{ reading.service.unit }})</td>
+                                        <td>{{ reading.value }} {% if reading.service.unit %}{{ reading.service.unit }}{% endif %}</td>
                                         <td>{{ reading.month }}</td>
                                     </tr>
                                     {% endfor %}
@@ -61,4 +79,32 @@
         </div>
     </div>
 </div>
+
+<script>
+    const serviceSelect = document.getElementById('service-select');
+    const readingValue = document.getElementById('reading-value');
+    const unitHint = document.getElementById('unit-hint');
+    
+    const unitMessages = {
+        'кВт/ч': 'Введите показание в киловатт-часах (кВт·ч), например: 150',
+        'м³': 'Введите показание в кубических метрах (м³), например: 12.5',
+        'Гкал': 'Введите показание в гигакалориях (Гкал), например: 0.5',
+        'м²': 'Введите площадь помещения (м²), например: 45.2'
+    };
+    
+    serviceSelect.addEventListener('change', function() {
+        const selectedOption = this.options[this.selectedIndex];
+        const unit = selectedOption.getAttribute('data-unit');
+        
+        if (unit && unitMessages[unit]) {
+            unitHint.textContent = unitMessages[unit];
+            readingValue.placeholder = unitMessages[unit];
+        } else if (unit) {
+            unitHint.textContent = `Введите показание в ${unit}`;
+            readingValue.placeholder = `Введите показание в ${unit}`;
+        } else {
+            unitHint.textContent = 'Выберите услугу';
+        }
+    });
+</script>
 {% endblock %}
