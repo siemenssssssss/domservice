@@ -35,7 +35,6 @@
                         <div class="mb-3">
                             <label class="form-label">Показание</label>
                             <input type="number" name="value" class="form-control" step="0.01" id="reading-value" required>
-                            <small class="text-muted" id="unit-hint">Выберите услугу</small>
                         </div>
                         
                         <button type="submit" class="btn btn-primary">Отправить показания</button>
@@ -64,7 +63,7 @@
                                     {% for reading in readings_history %}
                                     <tr>
                                         <td>{{ reading.service.name }} ({{ reading.service.unit }})</td>
-                                        <td>{{ reading.value }} {% if reading.service.unit %}{{ reading.service.unit }}{% endif %}</td>
+                                        <td>{{ reading.value }} {{ reading.service.unit }}</td>
                                         <td>{{ reading.month }}</td>
                                     </tr>
                                     {% endfor %}
@@ -83,7 +82,6 @@
 <script>
     const serviceSelect = document.getElementById('service-select');
     const readingValue = document.getElementById('reading-value');
-    const unitHint = document.getElementById('unit-hint');
     
     const unitMessages = {
         'кВт/ч': 'Введите показание в киловатт-часах (кВт·ч), например: 150',
@@ -97,13 +95,11 @@
         const unit = selectedOption.getAttribute('data-unit');
         
         if (unit && unitMessages[unit]) {
-            unitHint.textContent = unitMessages[unit];
             readingValue.placeholder = unitMessages[unit];
         } else if (unit) {
-            unitHint.textContent = `Введите показание в ${unit}`;
-            readingValue.placeholder = `Введите показание в ${unit}`;
+            readingValue.placeholder = 'Введите показание в ' + unit;
         } else {
-            unitHint.textContent = 'Выберите услугу';
+            readingValue.placeholder = 'Введите показание';
         }
     });
 </script>
