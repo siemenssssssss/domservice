@@ -12,37 +12,57 @@
                     <form method="post">
                         {% csrf_token %}
                         
+                        <!-- 1. Имя пользователя -->
                         <div class="mb-3">
                             <label class="form-label">Имя пользователя</label>
                             <input type="text" name="username" class="form-control" required>
                             <small class="text-muted">Только буквы, цифры и символы @/./+/-/_.</small>
                         </div>
                         
+                        <!-- 2. Пароль -->
+                        <div class="mb-3">
+                            <label class="form-label">Пароль</label>
+                            <input type="password" name="password1" class="form-control" required>
+                            <small class="text-muted">Минимум 8 символов.</small>
+                        </div>
+                        
+                        <!-- 3. Подтверждение пароля -->
+                        <div class="mb-3">
+                            <label class="form-label">Подтверждение пароля</label>
+                            <input type="password" name="password2" class="form-control" required>
+                        </div>
+                        
+                        <!-- 4. Имя -->
                         <div class="mb-3">
                             <label class="form-label">Имя</label>
                             <input type="text" name="first_name" class="form-control" required>
                         </div>
                         
+                        <!-- 5. Фамилия -->
                         <div class="mb-3">
                             <label class="form-label">Фамилия</label>
                             <input type="text" name="last_name" class="form-control" required>
                         </div>
                         
+                        <!-- 6. Email -->
                         <div class="mb-3">
                             <label class="form-label">Email</label>
                             <input type="email" name="email" class="form-control" required>
                         </div>
                         
+                        <!-- 7. Номер квартиры -->
                         <div class="mb-3">
                             <label class="form-label">Номер квартиры</label>
                             <input type="text" name="apartment_number" class="form-control" required>
                         </div>
                         
+                        <!-- 8. Телефон -->
                         <div class="mb-3">
                             <label class="form-label">Телефон</label>
                             <input type="text" name="phone" class="form-control" required>
                         </div>
                         
+                        <!-- 9. Выберите дом -->
                         <div class="mb-3">
                             <label class="form-label">Выберите дом</label>
                             <select name="house" class="form-control" required>
@@ -53,17 +73,7 @@
                             </select>
                         </div>
                         
-                        <div class="mb-3">
-                            <label class="form-label">Пароль</label>
-                            <input type="password" name="password1" class="form-control" required>
-                            <small class="text-muted">Минимум 8 символов.</small>
-                        </div>
-                        
-                        <div class="mb-3">
-                            <label class="form-label">Подтверждение пароля</label>
-                            <input type="password" name="password2" class="form-control" required>
-                        </div>
-                        
+                        <!-- 10. Каптча -->
                         <div class="mb-3">
                             <label class="form-label">Сколько будет 2 + 2?</label>
                             <input type="number" name="captcha_answer" class="form-control" style="width: 80px;" required>
